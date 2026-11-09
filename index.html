@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ONE JLL Year-End Party 2026: RSVP</title>
+<meta name="description" content="RSVP for the ONE JLL Year-End Party 2026, December 11 at Golden Bay Seafood Restaurant, Pasay City.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="ONE JLL Year-End Party 2026: RSVP">
+<meta property="og:description" content="Friday, December 11, 2026, 5 to 10 PM, Golden Bay Seafood Restaurant, Pasay City. Celebrate the holiday in your most creative pastel outfits.">
+<meta property="og:image" content="assets/poster.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<div class="deco" aria-hidden="true">
+  <svg class="s1" viewBox="0 0 24 24"><path fill="#f6c343" d="M12 1.5l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.3 5.7 20.9l1.5-7.1L1.8 8.9l7.2-.8z"/></svg>
+  <svg class="s2" viewBox="0 0 24 24"><path fill="#9ad6f2" d="M12 1.5l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.3 5.7 20.9l1.5-7.1L1.8 8.9l7.2-.8z"/></svg>
+  <svg class="s3" viewBox="0 0 24 24"><path fill="#f4a7cf" d="M12 1.5l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.3 5.7 20.9l1.5-7.1L1.8 8.9l7.2-.8z"/></svg>
+  <svg class="s4" viewBox="0 0 24 24"><path fill="#f6c343" d="M12 1.5l3 6.6 7.2.8-5.4 4.9 1.5 7.1L12 17.3 5.7 20.9l1.5-7.1L1.8 8.9l7.2-.8z"/></svg>
+  <svg class="b1" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#f7b9d9"/><circle cx="36" cy="38" r="12" fill="#fff" opacity=".6"/></svg>
+  <svg class="b2" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#cdb8f3"/><circle cx="36" cy="38" r="12" fill="#fff" opacity=".6"/></svg>
+</div>
+
+<header class="hero wrap">
+  <div class="brand"><i></i> ONE JLL</div>
+  <h1 class="title">
+    <span class="l l1" data-text="ONE JLL"><span>ONE JLL</span></span>
+    <span class="l l2 alt" data-text="YEAR-END PARTY"><span>YEAR-END PARTY</span></span>
+  </h1>
+  <div class="year"><b>&#9733;</b> 2026 <b>&#9733;</b></div>
+  <p class="ribbon" id="dressCode">Celebrate the holiday in your most creative pastel outfits</p>
+  <div class="facts">
+    <span class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span id="factDate">Friday, December 11, 2026</span></span>
+    <a class="fact" id="factVenue" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Golden Bay Seafood Restaurant, Pasay City</span></a>
+    <span class="fact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="factTime">5:00 PM to 10:00 PM</span> <small id="factReg">(registration starts at 5:00 PM)</small></span>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <aside class="poster">
+    <span class="tag">You're invited!</span>
+    <img src="assets/poster.jpg" alt="ONE JLL Year-End Party 2026 poster: December 11, 2026, Golden Bay Seafood Restaurant, Pasay City, 5 PM to 10 PM" width="1202" height="1600">
+  </aside>
+
+  <section class="card" id="rsvpCard">
+    <div id="setupBanner" class="banner warn">Registration opens soon. The form is not yet connected, so nothing can be saved right now.</div>
+    <div id="formView">
+      <h2>Confirm your attendance</h2>
+      <p class="lead">Fill in your details and we'll email you a QR code. Show it at the registration table on the night.</p>
+      <form id="rsvpForm" novalidate>
+        <div class="row two">
+          <div class="field">
+            <label for="lastName">Last name <span class="req">*</span></label>
+            <input id="lastName" name="lastName" autocomplete="family-name" required maxlength="80">
+            <div class="err" id="err-lastName">Please enter your last name.</div>
+          </div>
+          <div class="field">
+            <label for="firstName">First name <span class="req">*</span></label>
+            <input id="firstName" name="firstName" autocomplete="given-name" required maxlength="80">
+            <div class="err" id="err-firstName">Please enter your first name.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="businessLine">Business line <span class="req">*</span></label>
+          <select id="businessLine" name="businessLine" required>
+            <option value="">Choose your business line</option>
+          </select>
+          <div class="err" id="err-businessLine">Please choose your business line.</div>
+        </div>
+        <div class="field">
+          <label for="email">Email address <span class="req">*</span></label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required maxlength="120" placeholder="name@company.com">
+          <div class="hint">Your confirmation and QR code will be sent here.</div>
+          <div class="err" id="err-email">Please enter a valid email address.</div>
+        </div>
+        <div class="field">
+          <label for="contact">Contact number <span class="req">*</span></label>
+          <input id="contact" name="contact" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20" placeholder="09XX XXX XXXX">
+          <div class="err" id="err-contact">Please enter a valid mobile number (10 to 13 digits).</div>
+        </div>
+        <div id="formBanner" class="banner bad" role="alert"></div>
+        <button class="btn wide" id="submitBtn" type="submit"><span id="submitLabel">Confirm my RSVP</span></button>
+        <p class="note">Your details are used only for this event's guest list and attendance count. One RSVP per email address.</p>
+      </form>
+      <p class="note" style="text-align:center">Already confirmed? <button class="linkbtn" type="button" id="findLink">Find my QR code</button></p>
+    </div>
+
+    <div id="findView" style="display:none">
+      <h2>Find my QR code</h2>
+      <p class="lead">Enter the email address you registered with and we'll show your QR code again.</p>
+      <form id="findForm" novalidate>
+        <div class="field">
+          <label for="findEmail">Email address</label>
+          <input id="findEmail" type="email" inputmode="email" autocomplete="email" required>
+          <div class="err" id="err-findEmail">No RSVP found for that email. Check the spelling, or register above.</div>
+        </div>
+        <div class="actions" style="justify-content:flex-start">
+          <button class="btn" type="submit" id="findBtn">Show my QR</button>
+          <button class="btn ghost" type="button" id="findBack">Back</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="successView" style="display:none">
+      <div id="successBanner" class="banner ok show">You're on the list! See you on December 11.</div>
+      <div class="ticket" id="ticket">
+        <div class="eyebrow">ONE JLL Year-End Party 2026</div>
+        <h3 id="tkName">Guest Name</h3>
+        <div class="line" id="tkLine">Business line</div>
+        <img class="qr" id="tkQr" alt="Your RSVP QR code" crossorigin="anonymous" width="200" height="200">
+        <div class="code" id="tkCode">JLL-000000</div>
+        <div class="meta"><b id="tkDate">Friday, December 11, 2026</b><br><span id="tkVenue">Golden Bay Seafood Restaurant, Pasay City</span><br><span id="tkTime">5:00 PM to 10:00 PM</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn sm" type="button" id="dlBtn">Download QR ticket</button>
+        <a class="btn sm ghost" id="calBtn" href="#" target="_blank" rel="noopener">Add to Google Calendar</a>
+        <button class="btn sm ghost" type="button" id="printBtn">Print</button>
+      </div>
+      <div class="emailstate" id="emailState" style="display:none"></div>
+      <p class="note" style="text-align:center"><button class="linkbtn" type="button" id="againBtn">RSVP for another colleague</button></p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  Questions about the party? Ask your JLL event committee.<br>
+  <a href="admin.html">Committee sign-in</a> &middot; Registration system by Obra Mismo
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/rsvp.js"></script>
+</body>
+</html>

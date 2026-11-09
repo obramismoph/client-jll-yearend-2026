@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ONE JLL Year-End Party 2026: Committee</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body class="admin">
+
+<!-- sign in -->
+<section class="wrap login" id="loginView">
+  <div class="card">
+    <h2>Committee sign-in</h2>
+    <p class="lead">ONE JLL Year-End Party 2026: RSVP dashboard and check-in scanner.</p>
+    <div id="loginBanner" class="banner bad" role="alert"></div>
+    <form id="loginForm" novalidate>
+      <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="loginPass">Password</label><input id="loginPass" type="password" autocomplete="current-password" required></div>
+      <button class="btn wide" type="submit" id="loginBtn">Sign in</button>
+      <p class="note" style="text-align:center"><button class="linkbtn" type="button" id="forgotBtn">Forgot password?</button> &middot; <a href="index.html">Back to the RSVP page</a></p>
+    </form>
+    <form id="resetForm" style="display:none" novalidate>
+      <div class="field"><label for="newPass">New password</label><input id="newPass" type="password" autocomplete="new-password" minlength="8" required><div class="hint">At least 8 characters.</div></div>
+      <button class="btn wide" type="submit">Save new password</button>
+    </form>
+  </div>
+</section>
+
+<!-- app -->
+<div class="wrap" id="appView" style="display:none">
+  <div class="top">
+    <div>
+      <h1>ONE JLL Year-End Party 2026</h1>
+      <div class="who">Signed in as <b id="whoEmail"></b> &middot; <span id="lastSync" class="small">loading</span></div>
+    </div>
+    <div class="actions" style="margin:0">
+      <button class="btn sm ghost" type="button" id="refreshBtn">Refresh</button>
+      <button class="btn sm ghost" type="button" id="changePassBtn">Change password</button>
+      <button class="btn sm ghost" type="button" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+  <div id="appBanner" class="banner bad" role="alert"></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="dash" type="button">Dashboard</button>
+    <button class="tab" data-tab="guests" type="button">Guest list</button>
+    <button class="tab" data-tab="scan" type="button">Scanner</button>
+    <button class="tab" data-tab="walkin" type="button">Add walk-in</button>
+  </div>
+
+  <!-- dashboard -->
+  <section class="panel active" id="tab-dash">
+    <div class="kpis">
+      <div class="kpi"><div class="k">Confirmed RSVPs</div><div class="v" id="kRsvp">0</div><div class="s">online form</div></div>
+      <div class="kpi"><div class="k">Checked in</div><div class="v" id="kIn">0</div><div class="s" id="kInSub">of RSVPs</div></div>
+      <div class="kpi"><div class="k">Walk-ins</div><div class="v" id="kWalk">0</div><div class="s">present without RSVP</div></div>
+      <div class="kpi"><div class="k">Total present</div><div class="v" id="kPresent">0</div><div class="s" id="kRate">0% of RSVPs showed up</div></div>
+    </div>
+    <div class="tablewrap">
+      <table id="lineTable">
+        <thead><tr><th>Business line</th><th>RSVP'd</th><th>Attended (RSVP)</th><th>Walk-ins</th><th>Total present</th><th>Show-up rate</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="small" style="margin-top:10px">RSVP'd counts the online form. Attended counts RSVPs scanned or checked in. Walk-ins are guests added at the door without an RSVP. Total present = attended + walk-ins.</p>
+    <div class="actions" style="justify-content:flex-start"><button class="btn sm ghost" type="button" id="exportBtn">Download CSV (all guests)</button></div>
+  </section>
+
+  <!-- guest list -->
+  <section class="panel" id="tab-guests">
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search name, email, code" class="grow">
+      <select id="filterLine"><option value="">All business lines</option></select>
+      <select id="filterStatus"><option value="">All</option><option value="in">Checked in</option><option value="out">Not yet</option><option value="walk">Walk-ins</option></select>
+    </div>
+    <div class="tablewrap">
+      <table id="guestTable">
+        <thead><tr><th>Code</th><th>Name</th><th>Business line</th><th>Email</th><th>Contact</th><th>Status</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="small" id="guestCount" style="margin-top:10px"></p>
+  </section>
+
+  <!-- scanner -->
+  <section class="panel" id="tab-scan">
+    <div class="scan">
+      <div>
+        <div class="cam"><video id="scanVideo" playsinline muted></video><div class="frame"></div></div>
+        <div class="actions" style="justify-content:flex-start">
+          <button class="btn sm" type="button" id="scanStart">Start camera</button>
+          <button class="btn sm ghost" type="button" id="scanStop">Stop</button>
+        </div>
+        <p class="small">Point the camera at the guest's QR code (email or ticket). Works on a phone; allow camera access when asked.</p>
+      </div>
+      <div>
+        <div class="result" id="scanResult"><div class="eyebrow small">Ready</div><div class="big">Scan a QR code</div><div class="sub">or type the code below</div></div>
+        <form id="manualForm" class="toolbar" style="margin-top:12px" novalidate>
+          <input id="manualCode" placeholder="JLL-123456 or a name" class="grow">
+          <button class="btn sm" type="submit">Check in</button>
+        </form>
+        <div id="manualMatches"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- walk-in -->
+  <section class="panel" id="tab-walkin">
+    <div class="card" style="max-width:560px">
+      <h2>Add a walk-in</h2>
+      <p class="lead">For a guest at the door who did not RSVP. They are counted as present under their business line.</p>
+      <div id="walkBanner" class="banner ok"></div>
+      <form id="walkForm" novalidate>
+        <div class="row two">
+          <div class="field"><label for="wLast">Last name</label><input id="wLast" required></div>
+          <div class="field"><label for="wFirst">First name</label><input id="wFirst" required></div>
+        </div>
+        <div class="field"><label for="wLine">Business line</label><select id="wLine" required><option value="">Choose</option></select></div>
+        <div class="row two">
+          <div class="field"><label for="wEmail">Email (optional)</label><input id="wEmail" type="email"></div>
+          <div class="field"><label for="wContact">Contact (optional)</label><input id="wContact" type="tel"></div>
+        </div>
+        <button class="btn" type="submit" id="walkBtn">Add and check in</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/scanner.js"></script>
+</body>
+</html>
