@@ -47,7 +47,20 @@ The repo is public because GitHub Pages on a free account needs that; it holds
 only the page and public keys, never guest data. Move to Netlify or a custom
 domain later if the client wants a shorter link.
 
-## Setup (once, about 10 minutes)
+## Live setup (done 2026-11-09 by the CTO through Jay's Chrome)
+
+- Supabase project `jll-yearend-2026`, org Obra Mismo (obramismoph account), ref
+  `uzioduceglvxbimkgmeu`, Tokyo. Schema applied, sign-ups off, site URL and redirect
+  URL set to `admin.html`. First committee login: obramismoph@gmail.com (password in
+  `private/logins.txt`). Add the committee's own address in Authentication > Users.
+- EmailJS: the Lhabab Stupa account (lhababstupa@gmail.com, now Jay's; 2,000 sends a
+  month), Gmail service `service_et3xjoq`, template `template_qrhq1uj` named "JLL
+  Year-End RSVP confirmation". Mail arrives from lhababstupa@gmail.com with the display
+  name "ONE JLL Year-End Party 2026" and Reply-To obramismoph@gmail.com. To send from
+  an Obra Mismo address, add a Gmail service for obramismoph@gmail.com in EmailJS (one
+  Google consent click) and change `EMAILJS_SERVICE_ID`.
+
+## Setup from scratch (if it ever has to be rebuilt)
 
 1. **Supabase**: new project (any org of Jay's, free tier). SQL Editor: paste
    `supabase/schema.sql`, run. Authentication > Sign In / Providers: turn

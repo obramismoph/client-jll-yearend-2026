@@ -8,9 +8,9 @@ window.JLL = {
   SUPABASE_ANON_KEY: 'sb_publishable_i_YBiHVgXvqH1W9yAuP7MA_7djmLY1C',
 
   // EmailJS (dashboard.emailjs.com). Template params are listed in README.md.
-  EMAILJS_PUBLIC_KEY: 'YOUR_EMAILJS_PUBLIC_KEY',
-  EMAILJS_SERVICE_ID: 'YOUR_EMAILJS_SERVICE_ID',
-  EMAILJS_TEMPLATE_ID: 'YOUR_EMAILJS_TEMPLATE_ID',
+  EMAILJS_PUBLIC_KEY: 'PRxi1fJKxH1eHig8x',
+  EMAILJS_SERVICE_ID: 'service_et3xjoq',
+  EMAILJS_TEMPLATE_ID: 'template_qrhq1uj',
 
   // Where the site lives (used in the confirmation email).
   SITE_URL: 'https://obramismoph.github.io/client-jll-yearend-2026/',
