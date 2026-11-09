@@ -4,8 +4,8 @@
 window.JLL = {
   // Supabase project (Settings > API). Leave 'YOUR_' values until the project
   // exists; the page then shows "registration opens soon" and refuses saves.
-  SUPABASE_URL: 'YOUR_SUPABASE_URL',
-  SUPABASE_ANON_KEY: 'YOUR_SUPABASE_ANON_KEY',
+  SUPABASE_URL: 'https://uzioduceglvxbimkgmeu.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_i_YBiHVgXvqH1W9yAuP7MA_7djmLY1C',
 
   // EmailJS (dashboard.emailjs.com). Template params are listed in README.md.
   EMAILJS_PUBLIC_KEY: 'YOUR_EMAILJS_PUBLIC_KEY',
