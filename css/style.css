@@ -1,5 +1,6 @@
 /* ONE JLL Year-End Party 2026: pastel holiday look from the client's poster.
    Shared by index.html (RSVP) and admin.html (committee dashboard). */
+html{color-scheme:light only}
 :root{
   --lilac:#cdb8f3; --lilac-2:#e4d6fb;
   --pink:#f7b9d9;  --pink-2:#fde0ee;
@@ -27,7 +28,7 @@ body{
   background-attachment:fixed; min-height:100vh;
 }
 a{color:var(--purple)}
-img{max-width:100%; display:block}
+img{max-width:100%; height:auto; display:block}
 .wrap{width:min(1120px, 100% - 32px); margin:0 auto}
 
 /* ---------- decorations ---------- */
