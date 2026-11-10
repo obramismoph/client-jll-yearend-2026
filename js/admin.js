@@ -67,6 +67,7 @@
     C.BUSINESS_LINES.forEach(bl => {
       ['filterLine','wLine'].forEach(id => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; $(id).appendChild(o); });
     });
+    for(let n = 1; n <= C.TABLES; n++){ const o = document.createElement('option'); o.value = String(n); o.textContent = 'Table ' + n; $('filterTable').appendChild(o); }
     checkAdmin().then(load);
     timer = setInterval(load, 30000);
   }
@@ -82,7 +83,9 @@
     if(error){ banner('appBanner', 'Could not load guests: ' + error.message); return; }
     rows = data || [];
     $('lastSync').textContent = 'updated ' + fmtTime(new Date().toISOString());
-    renderDash(); renderGuests();
+    renderDash();
+    const ae = document.activeElement;
+    if(!(ae && ae.classList && ae.classList.contains('tblsel'))) renderGuests();  // do not close an open Table dropdown
   }
   $('refreshBtn').addEventListener('click', load);
 
@@ -114,22 +117,38 @@
 
   function renderGuests(){
     const q = $('search').value.trim().toLowerCase();
-    const fl = $('filterLine').value, fs = $('filterStatus').value;
+    const fl = $('filterLine').value, fs = $('filterStatus').value, ft = $('filterTable').value;
     const list = rows.filter(r => {
       if(fl && r.business_line !== fl) return false;
       if(fs === 'in' && !(r.checked_in && !r.walk_in)) return false;
       if(fs === 'out' && (r.checked_in || r.walk_in)) return false;
       if(fs === 'walk' && !r.walk_in) return false;
+      if(ft === 'none' && r.table_no) return false;
+      if(ft && ft !== 'none' && String(r.table_no) !== ft) return false;
       if(q && (fullName(r) + ' ' + (r.email || '') + ' ' + r.id + ' ' + (r.contact || '')).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
     const tb = $('guestTable').querySelector('tbody');
+    const opts = tableOptions();
     tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td>' + esc(r.business_line) + '</td>'
       + '<td class="small">' + esc(r.email) + emailMark(r) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
+      + '<td>' + tableSelect(r, opts) + '</td>'
       + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>')
       + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>')
       + (canDelete ? ' <button class="btn sm ghost" data-del="' + esc(r.id) + '" title="Remove this guest (no longer attending)" style="color:var(--bad)">Delete</button>' : '') + '</td></tr>').join('');
     $('guestCount').textContent = list.length + ' of ' + rows.length + ' guests shown';
+  }
+  // Dropdown for one guest. opts is built once per render with the head-count per table.
+  function tableOptions(){
+    const count = {};
+    rows.forEach(r => { if(r.table_no) count[r.table_no] = (count[r.table_no] || 0) + 1; });
+    let s = '<option value="">No table</option>';
+    for(let n = 1; n <= C.TABLES; n++) s += '<option value="' + n + '">Table ' + n + (count[n] ? ' (' + count[n] + ')' : '') + '</option>';
+    return s;
+  }
+  function tableSelect(r, opts){
+    const sel = r.table_no ? opts.replace('value="' + r.table_no + '"', 'value="' + r.table_no + '" selected') : opts;
+    return '<select class="tblsel" data-tbl="' + esc(r.id) + '" aria-label="Table for ' + esc(fullName(r)) + '">' + sel + '</select>';
   }
   function emailMark(r){
     if(r.walk_in || !r.email) return '';
@@ -141,7 +160,7 @@
     if(r.walk_in) return '<span class="pill walk">Walk-in ' + fmtTime(r.checked_in_at) + '</span>';
     return r.checked_in ? '<span class="pill in">Checked in ' + fmtTime(r.checked_in_at) + '</span>' : '<span class="pill out">Not yet</span>';
   }
-  ['search','filterLine','filterStatus'].forEach(id => $(id).addEventListener('input', renderGuests));
+  ['search','filterLine','filterStatus','filterTable'].forEach(id => $(id).addEventListener('input', renderGuests));
   $('guestTable').addEventListener('click', async (e) => {
     const b = e.target.closest('button'); if(!b) return;
     if(b.dataset.in) await checkIn(b.dataset.in, true);
@@ -173,6 +192,17 @@
     }
     rows = rows.filter(r => r.id !== id); renderDash(); renderGuests();
     banner('appBanner', name.trim() + ' was removed from the guest list.', 'ok');
+  });
+
+  $('guestTable').addEventListener('change', async (e) => {
+    const s = e.target.closest('select.tblsel'); if(!s) return;
+    const id = s.dataset.tbl, val = s.value ? parseInt(s.value, 10) : null;
+    const { data, error } = await sb.from('rsvps').update({ table_no: val }).eq('id', id).select().single();
+    if(error){ banner('appBanner', 'Could not save the table: ' + error.message); renderGuests(); return; }
+    banner('appBanner', '');
+    const i = rows.findIndex(r => r.id === id); if(i >= 0) rows[i] = data;
+    renderGuests();                                   // refresh the head-counts in every dropdown
+    const again = document.querySelector('select[data-tbl="' + id + '"]'); if(again) again.focus();
   });
 
   async function resendEmail(id, btn){
@@ -218,9 +248,9 @@
   });
 
   $('exportBtn').addEventListener('click', () => {
-    const head = ['Code','Last name','First name','Business line','Email','Contact','Type','Checked in','Checked in at (Manila)','Checked in by','RSVP at (Manila)'];
+    const head = ['Code','Last name','First name','Business line','Email','Contact','Table','Type','Checked in','Checked in at (Manila)','Checked in by','RSVP at (Manila)'];
     const fmt = (ts) => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : '';
-    const csv = [head].concat(rows.map(r => [r.id, r.last_name, r.first_name, r.business_line, r.email || '', r.contact || '', r.walk_in ? 'Walk-in' : 'RSVP',
+    const csv = [head].concat(rows.map(r => [r.id, r.last_name, r.first_name, r.business_line, r.email || '', r.contact || '', r.table_no || '', r.walk_in ? 'Walk-in' : 'RSVP',
       r.checked_in ? 'Yes' : 'No', fmt(r.checked_in_at), r.checked_in_by || '', fmt(r.created_at)]))
       .map(a => a.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const a = document.createElement('a');

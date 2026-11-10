@@ -41,5 +41,9 @@ window.JLL = {
     'Others'
   ],
 
+  // Tables the committee can assign guests to (dropdown 1..TABLES). Keep equal to the
+  // check constraint in supabase/migrations/0005_table_assignment.sql.
+  TABLES: 55,
+
   ID_PREFIX: 'JLL'
 };

@@ -31,6 +31,7 @@ contact number is collected and exported), seating, payments, plus-ones.
 | `css/style.css` | Pastel look from the client's poster (`assets/poster.jpg`) |
 | `supabase/migrations/0001_init.sql` | Table, RLS, grants, the guest functions, the per-line view |
 | `supabase/migrations/0002_email_status.sql` | Email attempts and errors, drops the old mark function, hourly catch-up cron |
+| `supabase/migrations/0005_table_assignment.sql` | `rsvps.table_no` (1 to 55) for the seating plan |
 | `supabase/migrations/0004_delete_guest.sql` | Delete a guest: admins-only policy (table `rsvp_admins`), deletion log table with a trigger |
 | `supabase/migrations/0003_service_role_grant.sql` | Grants the table to service_role (the edge function's role; new tables get no automatic grants) |
 | `supabase/functions/send-confirmation/index.ts` | Edge function: sends the confirmation through Resend (webhook on insert, dashboard Resend button, hourly catch-up) |
@@ -89,7 +90,7 @@ domain later if the client wants a shorter link.
    `supabase functions deploy send-confirmation --no-verify-jwt`), JWT
    verification **off** (the function is safe without it, see its header).
    Database > Webhooks: on `rsvps` INSERT call that function. Run
-   `0002_email_status.sql`, `0003_service_role_grant.sql` and `0004_delete_guest.sql`.
+   `0002_email_status.sql`, `0003_service_role_grant.sql`, `0004_delete_guest.sql` and `0005_table_assignment.sql`.
 ## Working rules
 
 - Read this file, then `git pull`, before editing. Keep `js/config.js` the only
@@ -107,3 +108,13 @@ deleter: `insert into public.rsvp_admins (email) values ('name@example.com');`
 (lowercase). Staff accounts are plain committee logins without delete. Every
 delete copies the row into `public.rsvp_deletions`; to undo one, re-insert
 `row_data` into `rsvps` from the SQL Editor.
+
+## Table assignment
+
+The client emails the seating plan; the committee then picks a table for each
+guest in the dashboard (Guest list, "Table" dropdown beside Check in, Tables 1 to
+55, saves on change, any committee login). The dropdown shows how many guests
+are already at each table. The guest list can be filtered by table or "No table
+yet", the door scanner shows the guest's table after a scan, and the CSV has a
+Table column. To change the number of tables see `0005_table_assignment.sql`
+and `TABLES` in `js/config.js`.

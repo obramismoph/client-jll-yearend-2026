@@ -188,3 +188,6 @@ td .btn.sm{padding:7px 12px; font-size:13px}
 .modal-warn{background:#fff3df; color:#8a5a08; border:1px solid #f6d49a; border-radius:14px; padding:12px 14px; font-size:14px}
 @keyframes pop{from{transform:scale(.94); opacity:0}to{transform:scale(1); opacity:1}}
 @media (prefers-reduced-motion: reduce){.modal-card{animation:none}}
+
+/* ---------- table dropdown in the guest list ---------- */
+.tblsel{width:auto; min-width:128px; padding:8px 10px; font-size:14px; border-radius:12px}

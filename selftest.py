@@ -14,7 +14,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql",
               "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
@@ -100,7 +100,13 @@ m4 = read("supabase/migrations/0004_delete_guest.sql")
 check("0004 limits delete to rsvp_admins by policy", "admins delete guests" in m4 and "rsvp_admins" in m4 and "for delete to authenticated" in m4)
 check("0004 logs every deletion", "rsvp_log_deletion" in m4 and "before delete on public.rsvps" in m4)
 check("0004 lists eventmastersxjll as the admin", "eventmastersxjll@gmail.com" in m4)
+m5 = read("supabase/migrations/0005_table_assignment.sql")
+check("0005 adds table_no limited to 1..55", "table_no smallint" in m5 and "between 1 and 55" in m5)
+check("config TABLES matches the 55-table constraint", re.search(r"TABLES:\s*55\b", cfg) is not None)
 admin_js = read("js/admin.js")
+check("admin.js has the Table dropdown, saves on change, protects an open dropdown", "tblsel" in admin_js and "update({ table_no: val })" in admin_js and "do not close an open Table dropdown" in admin_js)
+check("admin.js filters by table and exports it", "filterTable" in admin_js and "'Table','Type'" in admin_js)
+check("scanner shows the table at the door", "Table ' + g.table_no" in read("js/scanner.js"))
 check("admin.js shows Delete only when canDelete and confirms first", "canDelete ? " in admin_js and "askDelete" in admin_js and "delModal" in read("admin.html"))
 check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)
 check("admin.js shows email status", "emailMark" in admin_js)
