@@ -9,8 +9,8 @@ the Lhabab Stupa registration system (`Clients/LhababStupa`).
 
 - **RSVP page** (`index.html`): last name, first name, business line (the
   Google Form's dropdown), email, contact number. Saves to Supabase, shows a
-  QR ticket (download, print, add to Google Calendar) and emails the QR through
-  EmailJS. One RSVP per email: a repeat shows the existing QR instead of a
+  QR ticket (download, print, add to Google Calendar); the database then emails
+  the QR through Resend (edge function `send-confirmation`). One RSVP per email: a repeat shows the existing QR instead of a
   second row. "Find my QR code" re-shows a ticket by email.
 - **Committee dashboard** (`admin.html`, Supabase Auth sign-in): RSVP count vs
   actual attendance **per business line** (RSVP'd, attended, walk-ins, total
@@ -29,13 +29,14 @@ contact number is collected and exported), seating, payments, plus-ones.
 | `index.html`, `js/rsvp.js` | Guest RSVP page |
 | `admin.html`, `js/admin.js`, `js/scanner.js` | Committee dashboard and scanner |
 | `css/style.css` | Pastel look from the client's poster (`assets/poster.jpg`) |
-| `supabase/schema.sql` | Table, RLS, grants, the three guest functions, the per-line view |
+| `supabase/migrations/0001_init.sql` | Table, RLS, grants, the guest functions, the per-line view |
+| `supabase/migrations/0002_email_status.sql` | Email attempts and errors, drops the old mark function, hourly catch-up cron |
+| `supabase/functions/send-confirmation/index.ts` | Edge function: sends the confirmation through Resend (webhook on insert, dashboard Resend button, hourly catch-up) |
 | `selftest.py` | Checks without a database: `python selftest.py` |
-| `EMM_EMAILJS_SETUP.md` | Step-by-step for EMM (Jay's partner) to make their own EmailJS account so emails come from and reply to their address; they send back public key, service id, template id |
 | `private/` | Not in git: committee logins and anything with personal data |
 
-Guests never read the table: they call `rsvp_register`, `rsvp_lookup` and
-`rsvp_mark_emailed` (security definer), so the public anon key cannot list
+Guests never read the table: they call `rsvp_register` and `rsvp_lookup`
+(security definer), so the public anon key cannot list
 anyone's data. Committee members are Supabase Auth users and read, update and
 insert walk-ins under RLS.
 
@@ -59,56 +60,34 @@ domain later if the client wants a shorter link.
   `uzioduceglvxbimkgmeu`, Tokyo. Schema applied, sign-ups off, site URL and redirect
   URL set to `admin.html`. First committee login: obramismoph@gmail.com (password in
   `private/logins.txt`). Add the committee's own address in Authentication > Users.
-- EmailJS: the Lhabab Stupa account (lhababstupa@gmail.com, now Jay's; 2,000 sends a
-  month), Gmail service `service_et3xjoq`, template `template_qrhq1uj` named "JLL
-  Year-End RSVP confirmation". Mail arrives from lhababstupa@gmail.com with the display
-  name "ONE JLL Year-End Party 2026" and Reply-To obramismoph@gmail.com. To send from
-  an Obra Mismo address, add a Gmail service for obramismoph@gmail.com in EmailJS (one
-  Google consent click) and change `EMAILJS_SERVICE_ID`.
+- Email (since 2026-11-10): **Resend**, account created by Jay with
+  eventmastersxjll@gmail.com (EMM's mailbox for this event). Sender
+  `ONE JLL Year-End Party 2026 <eventsmasters_jll2026@obramismoph.com>` (domain obramismoph.com
+  verified in Resend by DNS records at Namecheap), Reply-To and Bcc
+  eventmastersxjll@gmail.com. The edge function `send-confirmation` runs on a
+  database webhook (insert on `rsvps`), on the dashboard's Resend button, and
+  hourly for anything unsent (`pg_cron` job `jll-email-catchup`). Secrets live in
+  Supabase > Edge Functions > Secrets: `RESEND_API_KEY`, optional `MAIL_FROM`,
+  `MAIL_REPLY_TO`, `MAIL_BCC`. Resend free plan: 3,000 a month, 100 a day; the
+  catch-up sends the rest the next day. EmailJS is no longer used.
 
 ## Setup from scratch (if it ever has to be rebuilt)
 
 1. **Supabase**: new project (any org of Jay's, free tier). SQL Editor: paste
-   `supabase/schema.sql`, run. Authentication > Sign In / Providers: turn
+   `supabase/migrations/0001_init.sql`, run. Authentication > Sign In / Providers: turn
    **off** "Allow new users to sign up" (committee accounts are added by hand).
    Authentication > Users > Add user: the committee login, with a password,
    **Auto Confirm User** on. Keep the password in `private/logins.txt`.
    Project Settings > API: copy the Project URL and the anon public key into
    `js/config.js`.
-2. **EmailJS**: a service connected to the sending Gmail, and a template with
-   the parameters below. Public key, service id and template id go in
-   `js/config.js`. Free plan is 200 emails a month: fine for a few hundred
-   RSVPs over two months, watch the quota on the first day the link goes out.
-3. `python selftest.py`, commit, push. Open the live page, register a test
-   guest, check the email and scan the QR from the dashboard, then delete the
-   test row in Supabase (Table Editor > rsvps).
-
-### EmailJS template
-
-Subject: `You're confirmed: {{event_name}} ({{rsvp_id}})`. To: `{{to_email}}`.
-Parameters sent by the page: `to_email`, `to_name`, `first_name`, `rsvp_id`,
-`business_line`, `qr_url`, `event_name`, `event_date`, `event_time`,
-`event_venue`, `event_dress`, `site_url`.
-
-```html
-<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#fff8fc;padding:24px;border-radius:16px;color:#3b2a4f">
-  <h2 style="color:#562a8c;margin:0 0 6px">Hi {{first_name}}, you're on the list!</h2>
-  <p style="margin:0 0 16px">Your RSVP for the <b>{{event_name}}</b> is confirmed.</p>
-  <table style="font-size:15px;line-height:1.6">
-    <tr><td style="color:#7d6a94;padding-right:12px">When</td><td><b>{{event_date}}</b><br>{{event_time}}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Where</td><td>{{event_venue}}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Dress code</td><td>{{event_dress}}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Business line</td><td>{{business_line}}</td></tr>
-  </table>
-  <div style="text-align:center;margin:22px 0">
-    <img src="{{qr_url}}" width="220" height="220" alt="Your QR code" style="background:#fff;padding:10px;border-radius:12px">
-    <div style="font-family:monospace;font-size:20px;letter-spacing:3px;margin-top:8px"><b>{{rsvp_id}}</b></div>
-    <p style="color:#7d6a94;font-size:13px">Show this QR code at the registration table. Registration starts at 5:00 PM.</p>
-  </div>
-  <p style="font-size:13px;color:#7d6a94">Lost this email? Open <a href="{{site_url}}">{{site_url}}</a> and use "Find my QR code".</p>
-</div>
-```
-
+2. **Resend**: account, Domains > Add Domain `obramismoph.com`, add the DNS
+   records it shows at Namecheap, wait for Verified. API Keys > Create (sending
+   access, that domain). Supabase > Edge Functions > Secrets: `RESEND_API_KEY`.
+   Deploy `supabase/functions/send-confirmation/index.ts` (dashboard editor or
+   `supabase functions deploy send-confirmation --no-verify-jwt`), JWT
+   verification **off** (the function is safe without it, see its header).
+   Database > Webhooks: on `rsvps` INSERT call that function. Run
+   `0002_email_status.sql`.
 ## Working rules
 
 - Read this file, then `git pull`, before editing. Keep `js/config.js` the only

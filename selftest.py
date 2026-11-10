@@ -13,7 +13,8 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
     "Research & Strategic Consulting", "Workplace Management", "VIP Guest", "Others",
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
-              "js/admin.js", "js/scanner.js", "supabase/schema.sql", "README.md", "EMM_EMAILJS_SETUP.md"]
+              "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
 
@@ -51,8 +52,8 @@ lines = re.findall(r"'([^']+)'", m.group(1)) if m else []
 check("business lines match the Google Form", lines == FORM_LINES, f"{lines}")
 
 # 5. no secrets, no service-role key, placeholders are the YOUR_ pattern
-check("config has no service_role key", "service_role" not in cfg and not re.search(r"eyJ[A-Za-z0-9_-]{30,}\.eyJ", cfg))
-check("config placeholders use YOUR_", all(k in cfg for k in ["SUPABASE_URL", "SUPABASE_ANON_KEY", "EMAILJS_PUBLIC_KEY"]))
+check("config has no service_role or Resend key", "service_role" not in cfg and not re.search(r"\bre_[A-Za-z0-9_]{20,}", cfg) and not re.search(r"eyJ[A-Za-z0-9_-]{30,}\.eyJ", cfg))
+check("config has the Supabase and contact settings", all(k in cfg for k in ["SUPABASE_URL", "SUPABASE_ANON_KEY", "CONTACT_EMAIL"]))
 for rel in TEXT_FILES:
     txt = read(rel)
     check("no secret-looking token in " + rel, not re.search(r"(sb_secret_|service_role|sk_live_|ghp_[A-Za-z0-9]{20,})", txt))
@@ -62,20 +63,35 @@ for rel in TEXT_FILES:
     check("no em dash in " + rel, "—" not in read(rel))
 
 # 7. schema: RLS, explicit grants, guest functions granted to anon, anon has no table rights
-sql = read("supabase/schema.sql")
+sql = read("supabase/migrations/0001_init.sql")
 check("schema enables RLS", "enable row level security" in sql)
 check("schema revokes table from anon", re.search(r"revoke all on table public\.rsvps from anon", sql) is not None)
 check("schema grants authenticated", "grant select, insert, update on table public.rsvps to authenticated" in sql)
 for fn in ["rsvp_register", "rsvp_lookup", "rsvp_mark_emailed"]:
-    check(f"schema defines and grants {fn}", f"function public.{fn}(" in sql and re.search(rf"grant execute on function public\.{fn}\(.*to anon, authenticated", sql) is not None)
+    check(f"0001 defines and grants {fn}", f"function public.{fn}(" in sql and re.search(rf"grant execute on function public\.{fn}\(.*to anon, authenticated", sql) is not None)
 check("schema functions are security definer", sql.count("security definer") >= 3)
 
 # 8. the pages call the functions the schema defines
 rsvp_js = read("js/rsvp.js")
-for fn in ["rsvp_register", "rsvp_lookup", "rsvp_mark_emailed"]:
+for fn in ["rsvp_register", "rsvp_lookup"]:
     check(f"rsvp.js calls {fn}", f"rpc('{fn}'" in rsvp_js)
 check("rsvp.js never reads the table directly", ".from('rsvps')" not in rsvp_js)
-check("rsvp.js sends the QR url in the email", "qr_url" in rsvp_js)
+for rel in ["index.html", "admin.html", "js/rsvp.js", "js/admin.js", "js/config.js"]:
+    check("no EmailJS left in " + rel, "emailjs" not in read(rel).lower())
+
+# 8b. Resend path: migration 0002, the edge function, the dashboard resend button
+m2 = read("supabase/migrations/0002_email_status.sql")
+check("0002 adds email_attempts and email_error", "email_attempts" in m2 and "email_error" in m2)
+check("0002 drops rsvp_mark_emailed", "drop function if exists public.rsvp_mark_emailed" in m2)
+check("0002 schedules the hourly catch-up", "cron.schedule" in m2 and "send-confirmation" in m2)
+fn_src = read("supabase/functions/send-confirmation/index.ts")
+check("function reads RESEND_API_KEY from secrets", 'Deno.env.get("RESEND_API_KEY")' in fn_src and not re.search(r"\bre_[A-Za-z0-9_]{20,}", fn_src))
+check("function re-reads the row and skips sent ones", 'from("rsvps").select("*")' in fn_src and "already sent" in fn_src)
+check("function replies to the committee mailbox", "eventmastersxjll@gmail.com" in fn_src)
+check("function venue matches config", "Golden Bay Fresh Seafood Restaurant, Pasay City" in fn_src and "Golden Bay Fresh Seafood Restaurant, Pasay City" in cfg)
+admin_js = read("js/admin.js")
+check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)
+check("admin.js shows email status", "emailMark" in admin_js)
 check("scanner id pattern matches walk-in ids too", "JLL-W?" in read("js/scanner.js"))
 
 # 9. size limits (TOOL_STANDARD rule 3), soft at 450 lines

@@ -1,16 +1,16 @@
 /* ONE JLL Year-End Party 2026: the only file to edit when connecting the
-   backend. Public keys only (anon key, EmailJS public key). Never a
-   service-role key here: this file is served to every guest. */
+   backend. Public keys only (the anon key). Never a service-role key or the
+   Resend key here: this file is served to every guest. */
 window.JLL = {
   // Supabase project (Settings > API). Leave 'YOUR_' values until the project
   // exists; the page then shows "registration opens soon" and refuses saves.
   SUPABASE_URL: 'https://uzioduceglvxbimkgmeu.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_i_YBiHVgXvqH1W9yAuP7MA_7djmLY1C',
 
-  // EmailJS (dashboard.emailjs.com). Template params are listed in README.md.
-  EMAILJS_PUBLIC_KEY: 'PRxi1fJKxH1eHig8x',
-  EMAILJS_SERVICE_ID: 'service_et3xjoq',
-  EMAILJS_TEMPLATE_ID: 'template_qrhq1uj',
+  // Confirmation emails are sent server-side (supabase/functions/send-confirmation,
+  // through Resend) the moment a row is inserted. This address receives replies
+  // and a copy of every confirmation; shown on the page as the contact.
+  CONTACT_EMAIL: 'eventmastersxjll@gmail.com',
 
   // Where the site lives (used in the confirmation email).
   SITE_URL: 'https://www.obramismoph.com/jll_emm2026',

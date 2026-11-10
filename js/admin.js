@@ -119,9 +119,16 @@
     });
     const tb = $('guestTable').querySelector('tbody');
     tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td>' + esc(r.business_line) + '</td>'
-      + '<td class="small">' + esc(r.email) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
-      + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>') + '</td></tr>').join('');
+      + '<td class="small">' + esc(r.email) + emailMark(r) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
+      + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>')
+      + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>') + '</td></tr>').join('');
     $('guestCount').textContent = list.length + ' of ' + rows.length + ' guests shown';
+  }
+  function emailMark(r){
+    if(r.walk_in || !r.email) return '';
+    if(r.email_sent_at) return '<br><span class="small" title="Confirmation email sent">emailed ' + fmtTime(r.email_sent_at) + '</span>';
+    if(r.email_error) return '<br><span class="small" style="color:var(--bad)" title="' + esc(r.email_error) + '">email failed</span>';
+    return '<br><span class="small">email pending</span>';
   }
   function statusPill(r){
     if(r.walk_in) return '<span class="pill walk">Walk-in ' + fmtTime(r.checked_in_at) + '</span>';
@@ -132,7 +139,19 @@
     const b = e.target.closest('button'); if(!b) return;
     if(b.dataset.in) await checkIn(b.dataset.in, true);
     if(b.dataset.undo) await checkIn(b.dataset.undo, false);
+    if(b.dataset.resend) await resendEmail(b.dataset.resend, b);
   });
+
+  async function resendEmail(id, btn){
+    btn.disabled = true; banner('appBanner', '');
+    const { error } = await sb.from('rsvps').update({ email_sent_at: null, email_attempts: 0, email_error: null }).eq('id', id);
+    if(error){ banner('appBanner', 'Could not reset the email flag: ' + error.message); btn.disabled = false; return; }
+    const { data, error: fnErr } = await sb.functions.invoke('send-confirmation', { body: { id } });
+    const r = data && data.results && data.results[0];
+    if(fnErr || !r || !r.sent) banner('appBanner', 'Email not sent: ' + (fnErr ? fnErr.message : (r && (r.error || r.skipped)) || 'unknown error'));
+    else banner('appBanner', 'Confirmation email sent again for ' + id + '.', 'ok');
+    await load(); btn.disabled = false;
+  }
 
   /* ---------- actions ---------- */
   async function checkIn(id, on){

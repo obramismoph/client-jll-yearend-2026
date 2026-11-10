@@ -1,7 +1,8 @@
 /* ONE JLL Year-End Party 2026: RSVP page logic.
    Reads window.JLL (js/config.js). Saves through the rsvp_register RPC only
-   (guests never read the table), emails the QR through EmailJS, and renders
-   a QR ticket the guest can download or print. */
+   (guests never read the table) and renders a QR ticket the guest can
+   download or print. The confirmation email is sent by the database itself
+   (webhook -> edge function send-confirmation -> Resend), not by this page. */
 (function(){
   'use strict';
   const C = window.JLL;
@@ -10,8 +11,6 @@
 
   const sbReady = C.SUPABASE_URL.indexOf('YOUR_') !== 0 && C.SUPABASE_ANON_KEY.indexOf('YOUR_') !== 0 && window.supabase;
   const sb = sbReady ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY) : null;
-  const emailReady = window.emailjs && [C.EMAILJS_PUBLIC_KEY, C.EMAILJS_SERVICE_ID, C.EMAILJS_TEMPLATE_ID].every(v => v.indexOf('YOUR_') !== 0);
-  if(emailReady) emailjs.init({ publicKey: C.EMAILJS_PUBLIC_KEY });
 
   /* ---------- static text from config ---------- */
   $('factDate').textContent = EV.date_text;
@@ -23,6 +22,7 @@
   $('tkDate').textContent = EV.date_text;
   $('tkVenue').textContent = EV.venue;
   $('tkTime').textContent = EV.time_text + ' (' + EV.registration_text.toLowerCase() + ')';
+  $('contactLink').href = 'mailto:' + C.CONTACT_EMAIL; $('contactLink').textContent = C.CONTACT_EMAIL;
   const sel = $('businessLine');
   C.BUSINESS_LINES.forEach(bl => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; sel.appendChild(o); });
   $('calBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
@@ -85,29 +85,8 @@
     es.textContent = msg;
   }
 
-  async function sendEmail(rec){
-    if(!emailReady){ emailState(false, 'Email confirmations are not connected yet. Please save or screenshot your QR ticket.'); return; }
-    try{
-      await emailjs.send(C.EMAILJS_SERVICE_ID, C.EMAILJS_TEMPLATE_ID, {
-        to_email: rec.email,
-        to_name: rec.first_name + ' ' + rec.last_name,
-        first_name: rec.first_name,
-        rsvp_id: rec.id,
-        business_line: rec.business_line,
-        qr_url: qrUrl(rec.id),
-        event_name: EV.name,
-        event_date: EV.date_text,
-        event_time: EV.time_text + ' (' + EV.registration_text + ')',
-        event_venue: EV.venue,
-        event_dress: EV.dress,
-        site_url: C.SITE_URL
-      });
-      emailState(true, 'Confirmation sent to ' + rec.email + '. Check Spam or Junk if it does not arrive in a few minutes.');
-      if(sb) sb.rpc('rsvp_mark_emailed', { p_id: rec.id, p_email: rec.email }).then(() => {}, (e) => console.warn('mark emailed failed', e));
-    }catch(err){
-      console.error('emailjs send failed', err);
-      emailState(false, "You're registered, but the confirmation email could not be sent. Please save or screenshot your QR ticket.");
-    }
+  function emailNotice(rec){
+    emailState(true, 'Your confirmation with this QR code is on its way to ' + rec.email + '. Check Spam or Junk if it is not there in a few minutes.');
   }
 
   /* ---------- submit ---------- */
@@ -147,7 +126,7 @@
       }else{
         renderTicket(res);
         $('rsvpForm').reset();
-        await sendEmail(res);
+        emailNotice(res);
       }
     }catch(err){
       console.error('rsvp failed', err);
