@@ -13,7 +13,7 @@ window.JLL = {
   EMAILJS_TEMPLATE_ID: 'template_qrhq1uj',
 
   // Where the site lives (used in the confirmation email).
-  SITE_URL: 'https://obramismoph.github.io/client-jll-yearend-2026/',
+  SITE_URL: 'https://www.obramismoph.com/jll_emm2026',
 
   EVENT: {
     name: 'ONE JLL Year-End Party 2026',

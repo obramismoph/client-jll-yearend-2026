@@ -40,6 +40,11 @@ insert walk-ins under RLS.
 
 ## Hosting
 
+**Client link: https://www.obramismoph.com/jll_emm2026** (committee:
+`/jll_emm2026/admin`). That path is a proxy rewrite in `Website/next.config.ts`
+to GitHub Pages; the pages carry a `<base href>` to GitHub Pages so their assets
+load wherever the HTML is served from.
+
 Static files, no build. Published from GitHub Pages
 (`obramismoph/client-jll-yearend-2026`, branch `main`) at
 https://obramismoph.github.io/client-jll-yearend-2026/ . Pushing `main` is the deploy.
