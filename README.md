@@ -1,7 +1,7 @@
 # ONE JLL Year-End Party 2026: RSVP site
 
 Client: JLL Philippines (event committee). Event: Friday, December 11, 2026,
-5 to 10 PM, Golden Bay Seafood Restaurant, Pasay City. Dress code: creative
+5 to 10 PM, Golden Bay Fresh Seafood Restaurant, Pasay City. Dress code: creative
 pastel outfits. Built 2026-11-09 by the CTO chat from Jay's brief, patterned on
 the Lhabab Stupa registration system (`Clients/LhababStupa`).
 

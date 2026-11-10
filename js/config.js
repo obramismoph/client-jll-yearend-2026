@@ -20,8 +20,8 @@ window.JLL = {
     date_text: 'Friday, December 11, 2026',
     time_text: '5:00 PM to 10:00 PM',
     registration_text: 'Registration starts at 5:00 PM',
-    venue: 'Golden Bay Seafood Restaurant, Pasay City',
-    venue_map: 'https://www.google.com/maps/search/?api=1&query=Golden+Bay+Seafood+Restaurant+Pasay+City',
+    venue: 'Golden Bay Fresh Seafood Restaurant, Pasay City',
+    venue_map: 'https://www.google.com/maps/search/?api=1&query=Golden+Bay+Fresh+Seafood+Restaurant+Pasay+City',
     dress: 'Celebrate the holiday in your most creative pastel outfits',
     // Google Calendar needs UTC: 5 pm to 10 pm Manila (+08:00).
     gcal_start: '20261211T090000Z',
