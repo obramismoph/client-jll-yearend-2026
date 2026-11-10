@@ -34,11 +34,15 @@ for rel in TEXT_FILES + ["assets/poster.jpg", ".gitignore"]:
 # 2. every local script/css/img referenced by the pages exists
 for page in ["index.html", "admin.html"]:
     html = read(page)
-    refs = re.findall(r'(?:src|href)="((?!https?:|#|mailto:)[^"]+\.(?:js|css|jpg|png))"', html)
+    refs = re.findall(r'(?:src|href)="((?!https?:|#|mailto:)[^"?]+\.(?:js|css|jpg|png))(?:\?[^"]*)?"', html)
     for ref in refs:
         check(f"{page} references {ref}", (ROOT / ref).is_file())
     check(page + " has viewport meta", 'name="viewport"' in html)
     check(page + " has doctype", html.lstrip().lower().startswith("<!doctype html>"))
+
+# 2b. cache-busting: every local css/js link carries the same ?v= stamp in both pages
+stamps = set(re.findall(r'(?:css/style\.css|js/\w+\.js)\?v=([A-Za-z0-9]+)"', read("index.html") + read("admin.html")))
+check("asset links carry the same ?v= stamp", len(stamps) == 1, f"{stamps}")
 
 # 3. JavaScript parses
 for js in ["js/config.js", "js/rsvp.js", "js/admin.js", "js/scanner.js"]:
