@@ -31,6 +31,7 @@ contact number is collected and exported), seating, payments, plus-ones.
 | `css/style.css` | Pastel look from the client's poster (`assets/poster.jpg`) |
 | `supabase/migrations/0001_init.sql` | Table, RLS, grants, the guest functions, the per-line view |
 | `supabase/migrations/0002_email_status.sql` | Email attempts and errors, drops the old mark function, hourly catch-up cron |
+| `supabase/migrations/0003_service_role_grant.sql` | Grants the table to service_role (the edge function's role; new tables get no automatic grants) |
 | `supabase/functions/send-confirmation/index.ts` | Edge function: sends the confirmation through Resend (webhook on insert, dashboard Resend button, hourly catch-up) |
 | `selftest.py` | Checks without a database: `python selftest.py` |
 | `private/` | Not in git: committee logins and anything with personal data |
@@ -87,7 +88,7 @@ domain later if the client wants a shorter link.
    `supabase functions deploy send-confirmation --no-verify-jwt`), JWT
    verification **off** (the function is safe without it, see its header).
    Database > Webhooks: on `rsvps` INSERT call that function. Run
-   `0002_email_status.sql`.
+   `0002_email_status.sql` and `0003_service_role_grant.sql`.
 ## Working rules
 
 - Read this file, then `git pull`, before editing. Keep `js/config.js` the only

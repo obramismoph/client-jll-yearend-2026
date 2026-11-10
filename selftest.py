@@ -14,7 +14,8 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/functions/send-confirmation/index.ts", "README.md"]
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql",
+              "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
 
@@ -60,7 +61,7 @@ check("config has no service_role or Resend key", "service_role" not in cfg and 
 check("config has the Supabase and contact settings", all(k in cfg for k in ["SUPABASE_URL", "SUPABASE_ANON_KEY", "CONTACT_EMAIL"]))
 for rel in TEXT_FILES:
     txt = read(rel)
-    check("no secret-looking token in " + rel, not re.search(r"(sb_secret_|service_role|sk_live_|ghp_[A-Za-z0-9]{20,})", txt))
+    check("no secret-looking token in " + rel, not re.search(r"(sb_secret_[A-Za-z0-9]|service_role['\"]?\s*[:=]\s*['\"]?eyJ|sk_live_|re_[A-Za-z0-9_]{20,}|ghp_[A-Za-z0-9]{20,})", txt))
 
 # 6. no em dashes anywhere (ORIGIN rule)
 for rel in TEXT_FILES:
@@ -88,6 +89,7 @@ m2 = read("supabase/migrations/0002_email_status.sql")
 check("0002 adds email_attempts and email_error", "email_attempts" in m2 and "email_error" in m2)
 check("0002 drops rsvp_mark_emailed", "drop function if exists public.rsvp_mark_emailed" in m2)
 check("0002 schedules the hourly catch-up", "cron.schedule" in m2 and "send-confirmation" in m2)
+check("0003 grants the table to service_role", "grant all on table public.rsvps to service_role" in read("supabase/migrations/0003_service_role_grant.sql"))
 fn_src = read("supabase/functions/send-confirmation/index.ts")
 check("function reads RESEND_API_KEY from secrets", 'Deno.env.get("RESEND_API_KEY")' in fn_src and not re.search(r"\bre_[A-Za-z0-9_]{20,}", fn_src))
 check("function re-reads the row and skips sent ones", 'from("rsvps").select("*")' in fn_src and "already sent" in fn_src)
