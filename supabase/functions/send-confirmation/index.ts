@@ -39,10 +39,18 @@ type Rsvp = {
   email: string | null; walk_in: boolean; email_sent_at: string | null; email_attempts: number;
 };
 
+// The dashboard's "Resend" button calls this from the browser, so answer the
+// CORS preflight and send the headers on every response.
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+  new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   if (!RESEND_API_KEY) return json({ error: "RESEND_API_KEY secret is not set" }, 500);
 

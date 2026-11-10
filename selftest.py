@@ -93,6 +93,7 @@ check("0003 grants the table to service_role", "grant all on table public.rsvps 
 fn_src = read("supabase/functions/send-confirmation/index.ts")
 check("function reads RESEND_API_KEY from secrets", 'Deno.env.get("RESEND_API_KEY")' in fn_src and not re.search(r"\bre_[A-Za-z0-9_]{20,}", fn_src))
 check("function re-reads the row and skips sent ones", 'from("rsvps").select("*")' in fn_src and "already sent" in fn_src)
+check("function answers CORS preflight for the dashboard", 'req.method === "OPTIONS"' in fn_src and "Access-Control-Allow-Origin" in fn_src)
 check("function replies to the committee mailbox", "eventmastersxjll@gmail.com" in fn_src)
 check("function venue matches config", "Golden Bay Fresh Seafood Restaurant, Pasay City" in fn_src and "Golden Bay Fresh Seafood Restaurant, Pasay City" in cfg)
 admin_js = read("js/admin.js")
