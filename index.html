@@ -130,6 +130,19 @@
   </section>
 </main>
 
+
+<div class="modal" id="doneModal" role="dialog" aria-modal="true" aria-labelledby="doneTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-emoji" aria-hidden="true">&#127876;&#10024;</div>
+    <h2 id="doneTitle">Thank you for confirming your attendance!</h2>
+    <p id="doneText">You're on the list, <b id="doneName">there</b>. Your QR code and the party details are on their way to <b id="doneEmail">your email</b>.</p>
+    <p class="modal-warn"><b>You're all set. No need to register again.</b> Each person registers once; sending the form twice will not create a second ticket.</p>
+    <div class="actions">
+      <button class="btn" type="button" id="doneClose">Show my QR code</button>
+    </div>
+  </div>
+</div>
+
 <footer class="wrap">
   Questions about the party? Email <a id="contactLink" href="#">the event committee</a>.<br>
   <a href="admin.html">Committee sign-in</a> &middot; Registration system by Obra Mismo

@@ -104,29 +104,32 @@ async function sendOne(id: string) {
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
 
 function html(r: Rsvp) {
-  return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#fff8fc;padding:24px;border-radius:16px;color:#3b2a4f">
-  <h2 style="color:#562a8c;margin:0 0 6px">Hi ${esc(r.first_name)}, you're on the list!</h2>
-  <p style="margin:0 0 16px">Your RSVP for the <b>${EVENT.name}</b> is confirmed.</p>
-  <table style="font-size:15px;line-height:1.6">
-    <tr><td style="color:#7d6a94;padding-right:12px">When</td><td><b>${EVENT.date}</b><br>${EVENT.time}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Where</td><td>${EVENT.venue}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Dress code</td><td>${EVENT.dress}</td></tr>
-    <tr><td style="color:#7d6a94;padding-right:12px">Business line</td><td>${esc(r.business_line)}</td></tr>
-  </table>
-  <div style="text-align:center;margin:22px 0">
+  return `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;background:#fff8fc;padding:24px;border-radius:16px;color:#3b2a4f;font-size:15px;line-height:1.6">
+  <p style="margin:0 0 12px;font-size:18px"><b>\u{1F384}\u2728 Thank you for confirming your attendance!</b></p>
+  <p style="margin:0 0 14px">Hi ${esc(r.first_name)}, we're excited to celebrate the holiday season with you at the <b>ONE JLL Year-End Party 2026</b>!</p>
+  <p style="margin:0 0 4px">\u{1F4C5} December 11, 2026 (Friday)</p>
+  <p style="margin:0 0 4px">\u23F0 5:00 PM</p>
+  <p style="margin:0 0 14px">\u{1F4CD} Golden Bay Fresh Seafoods Restaurant, Diosdado Macapagal, Pasay City</p>
+  <p style="margin:0 0 4px">Get ready for a fun-filled evening of celebration, good food, and great company!</p>
+  <p style="margin:0 0 4px">Don't forget to wear your most creative pastel outfit. \u{1F338}\u{1F380}</p>
+  <p style="margin:0 0 18px">See you there! \u{1F942}\u2728</p>
+  <div style="text-align:center;margin:22px 0;padding:18px;background:#fff;border-radius:14px">
+    <p style="margin:0 0 8px;color:#562a8c"><b>Your entrance QR code</b> (${esc(r.business_line)})</p>
     <img src="${QR(r.id)}" width="220" height="220" alt="Your QR code" style="background:#fff;padding:10px;border-radius:12px">
     <div style="font-family:monospace;font-size:20px;letter-spacing:3px;margin-top:8px"><b>${r.id}</b></div>
-    <p style="color:#7d6a94;font-size:13px">Show this QR code at the registration table. Registration starts at 5:00 PM.</p>
+    <p style="color:#7d6a94;font-size:13px;margin:8px 0 0">Show this QR code at the registration table. Registration starts at 5:00 PM.</p>
   </div>
-  <p style="font-size:13px;color:#7d6a94">Lost this email? Open <a href="${SITE_URL}">${SITE_URL}</a> and use "Find my QR code".</p>
+  <p style="font-size:13px;color:#7d6a94;margin:0">Lost this email? Open <a href="${SITE_URL}">${SITE_URL}</a> and use "Find my QR code".</p>
 </div>`;
 }
 
 function text(r: Rsvp) {
-  return [`Hi ${r.first_name}, you're on the list!`, ``,
-    `Your RSVP for the ${EVENT.name} is confirmed.`, ``,
-    `When: ${EVENT.date}, ${EVENT.time}`, `Where: ${EVENT.venue}`, `Dress code: ${EVENT.dress}`,
-    `Business line: ${r.business_line}`, ``,
-    `Your RSVP code: ${r.id}`, `QR code: ${QR(r.id)}`, ``,
-    `Show the QR code at the registration table. Lost this email? Open ${SITE_URL} and use "Find my QR code".`].join("\n");
+  return [`Thank you for confirming your attendance!`, ``,
+    `Hi ${r.first_name}, we're excited to celebrate the holiday season with you at the ONE JLL Year-End Party 2026!`, ``,
+    `December 11, 2026 (Friday)`, `5:00 PM`, `Golden Bay Fresh Seafoods Restaurant, Diosdado Macapagal, Pasay City`, ``,
+    `Get ready for a fun-filled evening of celebration, good food, and great company!`,
+    `Don't forget to wear your most creative pastel outfit.`, `See you there!`, ``,
+    `Your entrance QR code (${r.business_line}): ${QR(r.id)}`, `RSVP code: ${r.id}`, ``,
+    `Show the QR code at the registration table. Registration starts at 5:00 PM.`,
+    `Lost this email? Open ${SITE_URL} and use "Find my QR code".`].join("\n");
 }

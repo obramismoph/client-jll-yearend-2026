@@ -85,6 +85,17 @@
     es.textContent = msg;
   }
 
+  function showDone(rec){
+    $('doneName').textContent = rec.first_name;
+    $('doneEmail').textContent = rec.email;
+    const m = $('doneModal'); m.hidden = false; document.body.style.overflow = 'hidden';
+    $('doneClose').focus();
+  }
+  function hideDone(){ $('doneModal').hidden = true; document.body.style.overflow = ''; $('rsvpCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  $('doneClose').addEventListener('click', hideDone);
+  $('doneModal').addEventListener('click', (e) => { if(e.target === $('doneModal')) hideDone(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && !$('doneModal').hidden) hideDone(); });
+
   function emailNotice(rec){
     emailState(true, 'Your confirmation with this QR code is on its way to ' + rec.email + '. Check Spam or Junk if it is not there in a few minutes.');
   }
@@ -127,6 +138,7 @@
         renderTicket(res);
         $('rsvpForm').reset();
         emailNotice(res);
+        showDone(res);
       }
     }catch(err){
       console.error('rsvp failed', err);

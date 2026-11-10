@@ -92,6 +92,10 @@ check("function venue matches config", "Golden Bay Fresh Seafood Restaurant, Pas
 admin_js = read("js/admin.js")
 check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)
 check("admin.js shows email status", "emailMark" in admin_js)
+check("function carries the client's thank-you text", "Thank you for confirming your attendance" in fn_src and "Diosdado Macapagal" in fn_src)
+idx = read("index.html")
+check("index.html has the done pop-up", 'id="doneModal"' in idx and "No need to register again" in idx)
+check("rsvp.js opens the pop-up after a new RSVP", "showDone(res)" in rsvp_js)
 check("scanner id pattern matches walk-in ids too", "JLL-W?" in read("js/scanner.js"))
 
 # 9. size limits (TOOL_STANDARD rule 3), soft at 450 lines
