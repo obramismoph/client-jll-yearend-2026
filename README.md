@@ -31,6 +31,7 @@ contact number is collected and exported), seating, payments, plus-ones.
 | `css/style.css` | Pastel look from the client's poster (`assets/poster.jpg`) |
 | `supabase/schema.sql` | Table, RLS, grants, the three guest functions, the per-line view |
 | `selftest.py` | Checks without a database: `python selftest.py` |
+| `EMM_EMAILJS_SETUP.md` | Step-by-step for EMM (Jay's partner) to make their own EmailJS account so emails come from and reply to their address; they send back public key, service id, template id |
 | `private/` | Not in git: committee logins and anything with personal data |
 
 Guests never read the table: they call `rsvp_register`, `rsvp_lookup` and

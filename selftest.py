@@ -13,7 +13,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
     "Research & Strategic Consulting", "Workplace Management", "VIP Guest", "Others",
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
-              "js/admin.js", "js/scanner.js", "supabase/schema.sql", "README.md"]
+              "js/admin.js", "js/scanner.js", "supabase/schema.sql", "README.md", "EMM_EMAILJS_SETUP.md"]
 checks = []
 
 
