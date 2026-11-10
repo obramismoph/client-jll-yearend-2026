@@ -14,7 +14,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql",
               "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
@@ -96,7 +96,12 @@ check("function re-reads the row and skips sent ones", 'from("rsvps").select("*"
 check("function answers CORS preflight for the dashboard", 'req.method === "OPTIONS"' in fn_src and "Access-Control-Allow-Origin" in fn_src)
 check("function replies to the committee mailbox", "eventmastersxjll@gmail.com" in fn_src)
 check("function venue matches config", "Golden Bay Fresh Seafood Restaurant, Pasay City" in fn_src and "Golden Bay Fresh Seafood Restaurant, Pasay City" in cfg)
+m4 = read("supabase/migrations/0004_delete_guest.sql")
+check("0004 limits delete to rsvp_admins by policy", "admins delete guests" in m4 and "rsvp_admins" in m4 and "for delete to authenticated" in m4)
+check("0004 logs every deletion", "rsvp_log_deletion" in m4 and "before delete on public.rsvps" in m4)
+check("0004 lists eventmastersxjll as the admin", "eventmastersxjll@gmail.com" in m4)
 admin_js = read("js/admin.js")
+check("admin.js shows Delete only when canDelete and confirms first", "canDelete ? " in admin_js and "askDelete" in admin_js and "delModal" in read("admin.html"))
 check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)
 check("admin.js shows email status", "emailMark" in admin_js)
 check("function carries the client's thank-you text", "Thank you for confirming your attendance" in fn_src and "Diosdado Macapagal" in fn_src)

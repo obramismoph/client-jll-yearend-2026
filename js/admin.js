@@ -12,6 +12,7 @@
   let rows = [];          // all rsvps
   let me = null;          // auth user
   let timer = null;
+  let canDelete = false;  // true only for listed admins (table rsvp_admins); the database enforces it too
 
   function banner(id, msg, kind){ const el = $(id); el.textContent = msg || ''; el.className = 'banner ' + (kind || 'bad') + (msg ? ' show' : ''); }
   function fmtTime(ts){ if(!ts) return ''; return new Date(ts).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Manila' }); }
@@ -66,8 +67,13 @@
     C.BUSINESS_LINES.forEach(bl => {
       ['filterLine','wLine'].forEach(id => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; $(id).appendChild(o); });
     });
-    load();
+    checkAdmin().then(load);
     timer = setInterval(load, 30000);
+  }
+
+  async function checkAdmin(){
+    const { data } = await sb.from('rsvp_admins').select('email').eq('email', (me.email || '').toLowerCase()).maybeSingle();
+    canDelete = !!data;
   }
 
   /* ---------- data ---------- */
@@ -121,7 +127,8 @@
     tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td>' + esc(r.business_line) + '</td>'
       + '<td class="small">' + esc(r.email) + emailMark(r) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
       + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>')
-      + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>') + '</td></tr>').join('');
+      + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>')
+      + (canDelete ? ' <button class="btn sm ghost" data-del="' + esc(r.id) + '" title="Remove this guest (no longer attending)" style="color:var(--bad)">Delete</button>' : '') + '</td></tr>').join('');
     $('guestCount').textContent = list.length + ' of ' + rows.length + ' guests shown';
   }
   function emailMark(r){
@@ -140,6 +147,32 @@
     if(b.dataset.in) await checkIn(b.dataset.in, true);
     if(b.dataset.undo) await checkIn(b.dataset.undo, false);
     if(b.dataset.resend) await resendEmail(b.dataset.resend, b);
+    if(b.dataset.del) askDelete(b.dataset.del);
+  });
+
+  /* ---------- delete a guest (admins only) ---------- */
+  let delId = null;
+  function askDelete(id){
+    const r = find(id); if(!r || !canDelete) return;
+    delId = id; $('delName').textContent = fullName(r); $('delLine').textContent = r.business_line;
+    $('delModal').hidden = false; $('delCancel').focus();
+  }
+  function closeDelete(){ $('delModal').hidden = true; delId = null; }
+  $('delCancel').addEventListener('click', closeDelete);
+  $('delModal').addEventListener('click', (e) => { if(e.target === $('delModal')) closeDelete(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && !$('delModal').hidden) closeDelete(); });
+  $('delConfirm').addEventListener('click', async () => {
+    if(!delId) return;
+    const id = delId, name = fullName(find(id) || { first_name: id, last_name: '' });
+    $('delConfirm').disabled = true;
+    const { data, error } = await sb.from('rsvps').delete().eq('id', id).select('id');
+    $('delConfirm').disabled = false; closeDelete();
+    if(error || !data || !data.length){
+      banner('appBanner', 'Could not delete ' + name + (error ? ': ' + error.message : '. Only the main committee account can delete guests.'));
+      return;
+    }
+    rows = rows.filter(r => r.id !== id); renderDash(); renderGuests();
+    banner('appBanner', name.trim() + ' was removed from the guest list.', 'ok');
   });
 
   async function resendEmail(id, btn){

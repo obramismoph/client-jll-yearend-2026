@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261110b">
+<link rel="stylesheet" href="css/style.css?v=20261110c">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 </head>
@@ -135,8 +135,21 @@
   </section>
 </div>
 
-<script src="js/config.js?v=20261110b"></script>
-<script src="js/admin.js?v=20261110b"></script>
-<script src="js/scanner.js?v=20261110b"></script>
+
+<div class="modal" id="delModal" role="dialog" aria-modal="true" aria-labelledby="delTitle" hidden>
+  <div class="modal-card">
+    <h2 id="delTitle">Delete this guest?</h2>
+    <p><b id="delName">Guest</b> (<span id="delLine">business line</span>) will be removed from the list and their QR code will stop working. They no longer count in the totals.</p>
+    <p class="modal-warn">A copy is kept in the deletion log, so a mistake can be undone by Jay's team.</p>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="delCancel">Keep guest</button>
+      <button class="btn" type="button" id="delConfirm" style="background:linear-gradient(90deg,#d64a5f,#b0233a)">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js?v=20261110c"></script>
+<script src="js/admin.js?v=20261110c"></script>
+<script src="js/scanner.js?v=20261110c"></script>
 </body>
 </html>
