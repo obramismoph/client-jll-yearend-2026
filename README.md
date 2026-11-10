@@ -31,7 +31,7 @@ contact number is collected and exported), seating, payments, plus-ones.
 | `css/style.css` | Pastel look from the client's poster (`assets/poster.jpg`) |
 | `supabase/migrations/0001_init.sql` | Table, RLS, grants, the guest functions, the per-line view |
 | `supabase/migrations/0002_email_status.sql` | Email attempts and errors, drops the old mark function, hourly catch-up cron |
-| `supabase/migrations/0005_table_assignment.sql` | `rsvps.table_no` (1 to 55) for the seating plan |
+| `supabase/migrations/0005_table_assignment.sql` | `rsvps.table_no` (1 to 55); column kept, no longer used by the dashboard |
 | `supabase/migrations/0004_delete_guest.sql` | Delete a guest: admins-only policy (table `rsvp_admins`), deletion log table with a trigger |
 | `supabase/migrations/0003_service_role_grant.sql` | Grants the table to service_role (the edge function's role; new tables get no automatic grants) |
 | `supabase/functions/send-confirmation/index.ts` | Edge function: sends the confirmation through Resend (webhook on insert, dashboard Resend button, hourly catch-up) |
@@ -109,12 +109,10 @@ deleter: `insert into public.rsvp_admins (email) values ('name@example.com');`
 delete copies the row into `public.rsvp_deletions`; to undo one, re-insert
 `row_data` into `rsvps` from the SQL Editor.
 
-## Table assignment
+## Table assignment (removed)
 
-The client emails the seating plan; the committee then picks a table for each
-guest in the dashboard (Guest list, "Table" dropdown beside Check in, Tables 1 to
-55, saves on change, any committee login). The dropdown shows how many guests
-are already at each table. The guest list can be filtered by table or "No table
-yet", the door scanner shows the guest's table after a scan, and the CSV has a
-Table column. To change the number of tables see `0005_table_assignment.sql`
-and `TABLES` in `js/config.js`.
+A Table 1 to 55 dropdown was added to the guest list on 2026-11-10 and removed the
+same day at Tessa's request: the committee does not assign tables in the dashboard.
+The database column `rsvps.table_no` (migration 0005) stays, empty and unused, so
+the feature can come back without a data change. The table filter, the table at the
+door scanner and the CSV column went with the dropdown. Old code: git commit 522fc09.

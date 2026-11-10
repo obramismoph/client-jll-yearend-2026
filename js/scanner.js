@@ -8,8 +8,6 @@
   let stream = null, raf = null, paused = false, lastCode = '', lastTime = 0;
   const canvas = document.createElement('canvas');
 
-  const tableTxt = (g) => g.table_no ? ' &middot; <b>Table ' + g.table_no + '</b>' : ' &middot; no table yet';
-
   function result(kind, title, big, sub){
     const el = $('scanResult');
     el.className = 'result ' + (kind || '');
@@ -58,10 +56,10 @@
       if(!g){ await A().reload(); g = A().find(id); }
       if(!g){ result('bad', 'Not found', id, 'No RSVP with this code. Add the guest as a walk-in.'); beep(220); return; }
       if(g.checked_in){
-        result('again', 'Already checked in at ' + A().fmtTime(g.checked_in_at), A().esc(A().fullName(g)), A().esc(g.business_line) + tableTxt(g)); beep(440); return;
+        result('again', 'Already checked in at ' + A().fmtTime(g.checked_in_at), A().esc(A().fullName(g)), A().esc(g.business_line)); beep(440); return;
       }
       const upd = await A().checkIn(g.id, true);
-      if(upd) { result('ok', 'Welcome!', A().esc(A().fullName(upd)), A().esc(upd.business_line) + tableTxt(upd) + ' &middot; ' + A().fmtTime(upd.checked_in_at)); beep(880); }
+      if(upd) { result('ok', 'Welcome!', A().esc(A().fullName(upd)), A().esc(upd.business_line) + ' &middot; ' + A().fmtTime(upd.checked_in_at)); beep(880); }
       else result('bad', 'Error', 'Check-in did not save', 'Try again or use the guest list.');
     }finally{ setTimeout(() => { paused = false; }, 1500); }
   }
