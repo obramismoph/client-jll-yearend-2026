@@ -14,7 +14,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql", "supabase/migrations/0006_employee_number.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql", "supabase/migrations/0006_employee_number.sql", "supabase/migrations/0007_employee_required.sql",
               "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
@@ -104,6 +104,10 @@ m5 = read("supabase/migrations/0005_table_assignment.sql")
 check("0005 adds table_no limited to 1..55", "table_no smallint" in m5 and "between 1 and 55" in m5)
 m6 = read("supabase/migrations/0006_employee_number.sql")
 check("0006 adds employee_no and passes it through rsvp_register", "employee_no text" in m6 and "p_employee text default null" in m6 and "to anon, authenticated" in m6)
+m7 = read("supabase/migrations/0007_employee_required.sql")
+check("0007 requires the employee number except VIP Guest and Others, after the duplicate check", "Please enter your employee number" in m7 and "not in ('VIP Guest', 'Others')" in m7 and m7.index("if found then") < m7.index("Please enter your employee number") and "to anon, authenticated" in m7)
+rs = read("js/rsvp.js")
+check("form requires the employee number except VIP Guest and Others; walk-ins stay optional", "NO_EMPLOYEE_NO = ['VIP Guest', 'Others']" in rs and "setErr('employeeNo', needEmp)" in rs and 'id="err-employeeNo"' in read("index.html") and "Employee number (optional)" in read("admin.html"))
 admin_js = read("js/admin.js")
 check("employee number is in the form, the RPC call, the guest list, the CSV and walk-ins", 'id="employeeNo"' in read("index.html") and "p_employee" in read("js/rsvp.js") and "employee_no" in admin_js and "'Employee no.'" in admin_js and 'id="wEmp"' in read("admin.html"))
 check("guest list has no Table dropdown (removed 2026-11-10)", "tblsel" not in admin_js and "table_no" not in admin_js and "table_no" not in read("js/scanner.js"))

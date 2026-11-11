@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261111a">
+<link rel="stylesheet" href="css/style.css?v=20261111b">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -69,9 +69,10 @@
           </div>
         </div>
         <div class="field">
-          <label for="employeeNo">Employee number</label>
+          <label for="employeeNo">Employee number <span class="req" id="empReq">*</span></label>
           <input id="employeeNo" name="employeeNo" autocomplete="off" maxlength="20" placeholder="e.g. 12345">
-          <div class="hint">JLL employees: please enter your employee number. Others can leave this blank.</div>
+          <div class="hint" id="empHint">Required for JLL employees. VIP Guest and Others: leave blank.</div>
+          <div class="err" id="err-employeeNo">Please enter your employee number.</div>
         </div>
         <div class="field">
           <label for="businessLine">Business line <span class="req">*</span></label>
@@ -154,7 +155,7 @@
   <a href="admin.html">Committee sign-in</a> &middot; Registration system by Obra Mismo
 </footer>
 
-<script src="js/config.js?v=20261111a"></script>
-<script src="js/rsvp.js?v=20261111a"></script>
+<script src="js/config.js?v=20261111b"></script>
+<script src="js/rsvp.js?v=20261111b"></script>
 </body>
 </html>
