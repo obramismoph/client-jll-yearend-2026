@@ -109,6 +109,13 @@ deleter: `insert into public.rsvp_admins (email) values ('name@example.com');`
 delete copies the row into `public.rsvp_deletions`; to undo one, re-insert
 `row_data` into `rsvps` from the SQL Editor.
 
+## Employee number
+
+Optional field under the name row on the RSVP form (2026-11-11, migration `0006_employee_number.sql`,
+`rsvps.employee_no`, up to 20 characters). JLL employees fill it in; others leave it blank. It shows
+in the guest list (own column, searchable), the walk-in form and the CSV. `rsvp_register` takes it as
+the optional `p_employee`, so an old cached page still registers fine.
+
 ## Table assignment (removed)
 
 A Table 1 to 55 dropdown was added to the guest list on 2026-11-10 and removed the
