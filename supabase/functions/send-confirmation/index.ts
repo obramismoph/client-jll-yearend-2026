@@ -71,8 +71,13 @@ Deno.serve(async (req) => {
     ids = (data ?? []).map((r) => r.id);
   } else return json({ error: "send { id } or { mode: 'catchup' }" }, 400);
 
+  // Stop at the first quota refusal: the rest would only be refused too.
   const results = [];
-  for (const id of ids) results.push(await sendOne(id));
+  for (const id of ids) {
+    const r = await sendOne(id);
+    results.push(r);
+    if ("quota" in r && r.quota) break;
+  }
   return json({ results });
 });
 
@@ -105,8 +110,14 @@ async function sendOne(id: string) {
     return { id, sent: true, resend_id: out.id };
   }
   const msg = String(out?.message ?? `HTTP ${res.status}`).slice(0, 300);
-  await sb.from("rsvps").update({ email_attempts: r.email_attempts + 1, email_error: msg }).eq("id", id);
-  return { id, sent: false, error: msg };
+  // Resend's daily quota (100 a day on the free plan, every Bcc counts as one
+  // more) or its rate limit is not the guest's fault: keep the error for the
+  // dashboard but do not use up one of the guest's MAX_ATTEMPTS, so the hourly
+  // catch-up sends it once the quota resets (00:00 UTC = 8:00 am Manila).
+  const quota = res.status === 429 || /quota|rate limit/i.test(msg);
+  const attempts = quota ? r.email_attempts : r.email_attempts + 1;
+  await sb.from("rsvps").update({ email_attempts: attempts, email_error: msg }).eq("id", id);
+  return { id, sent: false, error: msg, quota };
 }
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));

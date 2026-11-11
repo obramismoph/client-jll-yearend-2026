@@ -74,6 +74,19 @@ domain later if the client wants a shorter link.
   `MAIL_REPLY_TO`, `MAIL_BCC`. Resend free plan: 3,000 a month, 100 a day; the
   catch-up sends the rest the next day. EmailJS is no longer used.
 
+## Resend daily quota (2026-11-12)
+
+On Nov 11, 266 guests registered online and Resend's free plan (100 a day, every
+Bcc counts as one more, resets 8:00 am Manila) refused the rest: 120 sent, 146
+waiting, 80 of them stuck at 5 attempts. Guests can still get their QR from
+"Find my QR code" on the site. Fix (branch `email-quota`):
+- The function no longer counts a quota refusal as a failed attempt, and the
+  catch-up stops at the first one (deploy through the dashboard).
+- `0008_quota_retry.sql` gives the stuck rows their attempts back.
+- Options for Jay: Bcc copy off (secret `MAIL_BCC` set to empty) doubles the
+  daily room to 100 guests; Resend Pro ($20 a month, no daily cap) clears the
+  backlog in one hour.
+
 ## Setup from scratch (if it ever has to be rebuilt)
 
 1. **Supabase**: new project (any org of Jay's, free tier). SQL Editor: paste
