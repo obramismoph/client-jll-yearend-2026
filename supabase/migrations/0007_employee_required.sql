@@ -1,7 +1,7 @@
--- ONE JLL Year-End Party 2026: employee number REQUIRED for JLL business lines
--- (Jay, 2026-11-11: "so guests won't skip it"). VIP Guest and Others have no
--- JLL number, so it stays optional for those two. Walk-ins (dashboard) are not
--- touched: they insert directly and stay optional for the door team.
+-- ONE JLL Year-End Party 2026: employee number REQUIRED for every RSVP
+-- (Jay, 2026-11-11: "so guests won't skip it"; required for everyone, VIP Guest
+-- and Others included). Walk-ins (dashboard) are not touched: they insert
+-- directly and stay optional for the door team.
 -- Run once in the Supabase SQL Editor. Safe to re-run. Apply together with the
 -- site change (an old cached page that sends a blank number for a JLL line will
 -- get the clear error below and the guest fills it in).
@@ -28,7 +28,7 @@ begin
     return jsonb_build_object('duplicate', true, 'id', r.id, 'first_name', r.first_name, 'last_name', r.last_name,
                               'business_line', r.business_line, 'email', r.email);
   end if;
-  if p_employee is null and p_line not in ('VIP Guest', 'Others') then
+  if p_employee is null then
     raise exception 'Please enter your employee number';
   end if;
   insert into public.rsvps (id, last_name, first_name, business_line, email, contact, employee_no)

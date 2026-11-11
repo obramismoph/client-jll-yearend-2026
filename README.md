@@ -117,8 +117,8 @@ in the guest list (own column, searchable), the walk-in form and the CSV. `rsvp_
 the optional `p_employee`, so an old cached page still registers fine.
 
 **Required since 2026-11-11** (Jay: "so guests won't skip it"), migration `0007_employee_required.sql`:
-the form and `rsvp_register` refuse a blank number for every JLL business line; **VIP Guest** and
-**Others** have no JLL number and stay optional (the red star hides when one is picked). A returning
+the form and `rsvp_register` refuse a blank number for every business line, VIP Guest and Others
+included (Jay's call: "Do it na lang kasi yun yung nare-request eh"). A returning
 email still gets its QR back without a number. Walk-ins on the dashboard stay optional, so the door
 team is never stuck.
 

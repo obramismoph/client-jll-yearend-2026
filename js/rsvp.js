@@ -25,14 +25,6 @@
   $('contactLink').href = 'mailto:' + C.CONTACT_EMAIL; $('contactLink').textContent = C.CONTACT_EMAIL;
   const sel = $('businessLine');
   C.BUSINESS_LINES.forEach(bl => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; sel.appendChild(o); });
-  // Employee number: required for JLL business lines, not for these two (no JLL number).
-  const NO_EMPLOYEE_NO = ['VIP Guest', 'Others'];
-  sel.addEventListener('change', () => {
-    const optional = NO_EMPLOYEE_NO.indexOf(sel.value) >= 0;
-    $('empReq').style.display = optional ? 'none' : '';
-    if(optional) setErr('employeeNo', false);
-  });
-  $('rsvpForm').addEventListener('reset', () => { $('empReq').style.display = ''; });
   $('calBtn').href = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
     + '&text=' + encodeURIComponent(EV.name)
     + '&dates=' + EV.gcal_start + '/' + EV.gcal_end
@@ -122,7 +114,7 @@
     setErr('lastName', !lastName); bad = bad || !lastName;
     setErr('firstName', !firstName); bad = bad || !firstName;
     setErr('businessLine', !businessLine); bad = bad || !businessLine;
-    const needEmp = !!businessLine && NO_EMPLOYEE_NO.indexOf(businessLine) < 0 && !employeeNo;
+    const needEmp = !employeeNo;
     setErr('employeeNo', needEmp); bad = bad || needEmp;
     setErr('email', !validEmail(email)); bad = bad || !validEmail(email);
     setErr('contact', !validPhone(contact)); bad = bad || !validPhone(contact);
