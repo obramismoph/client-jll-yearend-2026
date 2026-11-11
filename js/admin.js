@@ -120,11 +120,11 @@
       if(fs === 'in' && !(r.checked_in && !r.walk_in)) return false;
       if(fs === 'out' && (r.checked_in || r.walk_in)) return false;
       if(fs === 'walk' && !r.walk_in) return false;
-      if(q && (fullName(r) + ' ' + (r.email || '') + ' ' + r.id + ' ' + (r.contact || '')).toLowerCase().indexOf(q) < 0) return false;
+      if(q && (fullName(r) + ' ' + (r.email || '') + ' ' + r.id + ' ' + (r.contact || '') + ' ' + (r.employee_no || '')).toLowerCase().indexOf(q) < 0) return false;
       return true;
     });
     const tb = $('guestTable').querySelector('tbody');
-    tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td>' + esc(r.business_line) + '</td>'
+    tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td class="small">' + esc(r.employee_no) + '</td><td>' + esc(r.business_line) + '</td>'
       + '<td class="small">' + esc(r.email) + emailMark(r) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
       + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>')
       + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>')
@@ -204,7 +204,7 @@
 
   $('walkForm').addEventListener('submit', async (e) => {
     e.preventDefault(); banner('walkBanner', '');
-    const rec = { id: C.ID_PREFIX + '-W' + Math.floor(10000 + Math.random() * 90000), last_name: $('wLast').value.trim(), first_name: $('wFirst').value.trim(),
+    const rec = { id: C.ID_PREFIX + '-W' + Math.floor(10000 + Math.random() * 90000), last_name: $('wLast').value.trim(), first_name: $('wFirst').value.trim(), employee_no: $('wEmp').value.trim() || null,
       business_line: $('wLine').value, email: $('wEmail').value.trim().toLowerCase() || null, contact: $('wContact').value.trim() || null,
       walk_in: true, checked_in: true, checked_in_at: new Date().toISOString(), checked_in_by: me.email };
     if(!rec.last_name || !rec.first_name || !rec.business_line){ banner('walkBanner', 'Name and business line are required.', 'bad'); return; }
@@ -218,9 +218,9 @@
   });
 
   $('exportBtn').addEventListener('click', () => {
-    const head = ['Code','Last name','First name','Business line','Email','Contact','Type','Checked in','Checked in at (Manila)','Checked in by','RSVP at (Manila)'];
+    const head = ['Code','Last name','Employee no.','First name','Business line','Email','Contact','Type','Checked in','Checked in at (Manila)','Checked in by','RSVP at (Manila)'];
     const fmt = (ts) => ts ? new Date(ts).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : '';
-    const csv = [head].concat(rows.map(r => [r.id, r.last_name, r.first_name, r.business_line, r.email || '', r.contact || '', r.walk_in ? 'Walk-in' : 'RSVP',
+    const csv = [head].concat(rows.map(r => [r.id, r.last_name, r.employee_no || '', r.first_name, r.business_line, r.email || '', r.contact || '', r.walk_in ? 'Walk-in' : 'RSVP',
       r.checked_in ? 'Yes' : 'No', fmt(r.checked_in_at), r.checked_in_by || '', fmt(r.created_at)]))
       .map(a => a.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n');
     const a = document.createElement('a');

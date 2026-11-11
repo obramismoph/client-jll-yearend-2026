@@ -14,7 +14,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql", "supabase/migrations/0006_employee_number.sql",
               "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
@@ -102,7 +102,10 @@ check("0004 logs every deletion", "rsvp_log_deletion" in m4 and "before delete o
 check("0004 lists eventmastersxjll as the admin", "eventmastersxjll@gmail.com" in m4)
 m5 = read("supabase/migrations/0005_table_assignment.sql")
 check("0005 adds table_no limited to 1..55", "table_no smallint" in m5 and "between 1 and 55" in m5)
+m6 = read("supabase/migrations/0006_employee_number.sql")
+check("0006 adds employee_no and passes it through rsvp_register", "employee_no text" in m6 and "p_employee text default null" in m6 and "to anon, authenticated" in m6)
 admin_js = read("js/admin.js")
+check("employee number is in the form, the RPC call, the guest list, the CSV and walk-ins", 'id="employeeNo"' in read("index.html") and "p_employee" in read("js/rsvp.js") and "employee_no" in admin_js and "'Employee no.'" in admin_js and 'id="wEmp"' in read("admin.html"))
 check("guest list has no Table dropdown (removed 2026-11-10)", "tblsel" not in admin_js and "table_no" not in admin_js and "table_no" not in read("js/scanner.js"))
 check("admin.js shows Delete only when canDelete and confirms first", "canDelete ? " in admin_js and "askDelete" in admin_js and "delModal" in read("admin.html"))
 check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)

@@ -106,6 +106,7 @@
     banner('formBanner', '');
     const lastName = titleCase($('lastName').value);
     const firstName = titleCase($('firstName').value);
+    const employeeNo = $('employeeNo').value.trim().replace(/\s+/g, ' ');
     const businessLine = $('businessLine').value;
     const email = $('email').value.trim().toLowerCase();
     const contact = cleanPhone($('contact').value);
@@ -124,7 +125,7 @@
       while(tries < 3){
         tries++;
         const { data, error } = await sb.rpc('rsvp_register', {
-          p_id: newId(), p_last: lastName, p_first: firstName, p_line: businessLine, p_email: email, p_contact: contact
+          p_id: newId(), p_last: lastName, p_first: firstName, p_line: businessLine, p_email: email, p_contact: contact, p_employee: employeeNo || null
         });
         if(error && error.code === '23505' && /rsvps_pkey/.test(error.message || '')) continue; // id collision: new id, try again
         if(error) throw error;
