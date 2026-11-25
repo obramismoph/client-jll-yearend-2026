@@ -111,6 +111,7 @@ check("form requires the employee number for everyone; walk-ins stay optional", 
 admin_js = read("js/admin.js")
 check("employee number is in the form, the RPC call, the guest list, the CSV and walk-ins", 'id="employeeNo"' in read("index.html") and "p_employee" in read("js/rsvp.js") and "employee_no" in admin_js and "'Employee no.'" in admin_js and 'id="wEmp"' in read("admin.html"))
 check("guest list has no Table dropdown (removed 2026-11-10)", "tblsel" not in admin_js and "table_no" not in admin_js and "table_no" not in read("js/scanner.js"))
+check("guest list has an Edit button and modal that saves with update()", "data-edit" in admin_js and "askEdit" in admin_js and 'id="editModal"' in read("admin.html") and ".update(patch).eq('id', editId)" in admin_js)
 check("admin.js shows Delete only when canDelete and confirms first", "canDelete ? " in admin_js and "askDelete" in admin_js and "delModal" in read("admin.html"))
 check("admin.js has the Resend button calling the function", "functions.invoke('send-confirmation'" in admin_js)
 check("admin.js shows email status", "emailMark" in admin_js)

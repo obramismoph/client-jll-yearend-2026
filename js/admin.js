@@ -65,7 +65,7 @@
     $('loginView').style.display = 'none';
     $('appView').style.display = 'block';
     C.BUSINESS_LINES.forEach(bl => {
-      ['filterLine','wLine'].forEach(id => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; $(id).appendChild(o); });
+      ['filterLine','wLine','eLine'].forEach(id => { const o = document.createElement('option'); o.value = bl; o.textContent = bl; $(id).appendChild(o); });
     });
     checkAdmin().then(load);
     timer = setInterval(load, 30000);
@@ -127,6 +127,7 @@
     tb.innerHTML = list.map(r => '<tr><td class="small">' + esc(r.id) + '</td><td><b>' + esc(fullName(r)) + '</b></td><td class="small">' + esc(r.employee_no) + '</td><td>' + esc(r.business_line) + '</td>'
       + '<td class="small">' + esc(r.email) + emailMark(r) + '</td><td class="small">' + esc(r.contact) + '</td><td>' + statusPill(r) + '</td>'
       + '<td>' + (r.checked_in ? '<button class="btn sm ghost" data-undo="' + esc(r.id) + '">Undo</button>' : '<button class="btn sm" data-in="' + esc(r.id) + '">Check in</button>')
+      + ' <button class="btn sm ghost" data-edit="' + esc(r.id) + '" title="Correct the details of this guest">Edit</button>'
       + (r.walk_in || !r.email ? '' : ' <button class="btn sm ghost" data-resend="' + esc(r.id) + '" title="Send the confirmation email again">Resend</button>')
       + (canDelete ? ' <button class="btn sm ghost" data-del="' + esc(r.id) + '" title="Remove this guest (no longer attending)" style="color:var(--bad)">Delete</button>' : '') + '</td></tr>').join('');
     $('guestCount').textContent = list.length + ' of ' + rows.length + ' guests shown';
@@ -148,6 +149,38 @@
     if(b.dataset.undo) await checkIn(b.dataset.undo, false);
     if(b.dataset.resend) await resendEmail(b.dataset.resend, b);
     if(b.dataset.del) askDelete(b.dataset.del);
+    if(b.dataset.edit) askEdit(b.dataset.edit);
+  });
+
+  /* ---------- edit a guest (any signed-in committee member) ---------- */
+  let editId = null;
+  function askEdit(id){
+    const r = find(id); if(!r) return;
+    editId = id; banner('editBanner', '');
+    $('editCode').textContent = r.id + (r.email ? ' · ' + r.email : '');
+    $('eLast').value = r.last_name; $('eFirst').value = r.first_name; $('eEmp').value = r.employee_no || '';
+    $('eContact').value = r.contact || '';
+    const sel = $('eLine');
+    if(![...sel.options].some(o => o.value === r.business_line)){ const o = document.createElement('option'); o.value = r.business_line; o.textContent = r.business_line; sel.appendChild(o); }
+    sel.value = r.business_line;
+    $('editModal').hidden = false; $('eLine').focus();
+  }
+  function closeEdit(){ $('editModal').hidden = true; editId = null; }
+  $('editCancel').addEventListener('click', closeEdit);
+  $('editModal').addEventListener('click', (e) => { if(e.target === $('editModal')) closeEdit(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && !$('editModal').hidden) closeEdit(); });
+  $('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); if(!editId) return;
+    const patch = { last_name: $('eLast').value.trim().replace(/\s+/g, ' '), first_name: $('eFirst').value.trim().replace(/\s+/g, ' '),
+      employee_no: $('eEmp').value.trim() || null, business_line: $('eLine').value, contact: $('eContact').value.trim() || null };
+    if(!patch.last_name || !patch.first_name || !patch.business_line){ banner('editBanner', 'Name and business line are required.'); return; }
+    $('editSave').disabled = true;
+    const { data, error } = await sb.from('rsvps').update(patch).eq('id', editId).select().single();
+    $('editSave').disabled = false;
+    if(error){ banner('editBanner', 'Could not save: ' + error.message); return; }
+    const i = rows.findIndex(r => r.id === editId); if(i >= 0) rows[i] = data;
+    closeEdit(); renderDash(); renderGuests();
+    banner('appBanner', fullName(data) + ' was updated.', 'ok');
   });
 
   /* ---------- delete a guest (admins only) ---------- */

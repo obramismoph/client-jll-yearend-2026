@@ -137,6 +137,28 @@
 </div>
 
 
+<div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editTitle" hidden>
+  <div class="modal-card" style="text-align:left">
+    <h2 id="editTitle">Edit guest</h2>
+    <p class="small" id="editCode"></p>
+    <div id="editBanner" class="banner bad" role="alert"></div>
+    <form id="editForm" novalidate>
+      <div class="row two">
+        <div class="field"><label for="eLast">Last name</label><input id="eLast" maxlength="80" required></div>
+        <div class="field"><label for="eFirst">First name</label><input id="eFirst" maxlength="80" required></div>
+      </div>
+      <div class="field"><label for="eEmp">Employee number</label><input id="eEmp" maxlength="20"></div>
+      <div class="field"><label for="eLine">Business line</label><select id="eLine" required></select></div>
+      <div class="field"><label for="eContact">Contact number</label><input id="eContact" type="tel" maxlength="20"></div>
+      <p class="small">The email address cannot be changed here (the QR code and confirmation are tied to it).</p>
+      <div class="actions">
+        <button class="btn ghost" type="button" id="editCancel">Cancel</button>
+        <button class="btn" type="submit" id="editSave">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="modal" id="delModal" role="dialog" aria-modal="true" aria-labelledby="delTitle" hidden>
   <div class="modal-card">
     <h2 id="delTitle">Delete this guest?</h2>

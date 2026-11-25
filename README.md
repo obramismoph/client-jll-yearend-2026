@@ -109,6 +109,12 @@ deleter: `insert into public.rsvp_admins (email) values ('name@example.com');`
 delete copies the row into `public.rsvp_deletions`; to undo one, re-insert
 `row_data` into `rsvps` from the SQL Editor.
 
+## Editing guests
+
+Every guest row has an Edit button (any signed-in committee member): last and first name, employee number,
+business line and contact number can be corrected. The email cannot be changed. It uses the existing
+committee update policy, so no migration was needed (2026-11-25).
+
 ## Employee number
 
 Optional field under the name row on the RSVP form (2026-11-11, migration `0006_employee_number.sql`,
