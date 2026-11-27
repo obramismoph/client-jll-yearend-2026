@@ -14,7 +14,7 @@ FORM_LINES = [  # the client's Google Form dropdown, 2026-11-09
 ]
 TEXT_FILES = ["index.html", "admin.html", "css/style.css", "js/config.js", "js/rsvp.js",
               "js/admin.js", "js/scanner.js", "supabase/migrations/0001_init.sql",
-              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql", "supabase/migrations/0006_employee_number.sql", "supabase/migrations/0007_employee_required.sql",
+              "supabase/migrations/0002_email_status.sql", "supabase/migrations/0003_service_role_grant.sql", "supabase/migrations/0004_delete_guest.sql", "supabase/migrations/0005_table_assignment.sql", "supabase/migrations/0006_employee_number.sql", "supabase/migrations/0007_employee_required.sql", "supabase/migrations/0009_close_registration.sql",
               "supabase/functions/send-confirmation/index.ts", "README.md"]
 checks = []
 
@@ -121,6 +121,10 @@ check("index.html has the done pop-up", 'id="doneModal"' in idx and "No need to 
 check("pop-up tells guests to check their spam folder", "PLEASE CHECK YOUR SPAM FOLDER" in idx)
 check("rsvp.js opens the pop-up after a new RSVP", "showDone(res)" in rsvp_js)
 check("scanner id pattern matches walk-in ids too", "JLL-W?" in read("js/scanner.js"))
+
+m9 = read("supabase/migrations/0009_close_registration.sql")
+check("0009 closes registration after the duplicate check", "select false" in m9 and m9.index("'duplicate', true") < m9.index("if not public.rsvp_is_open()") < m9.index("insert into public.rsvps"))
+check("page is closed: flag off, notice present, submit guarded, QR finder kept", "REGISTRATION_OPEN: false" in read("js/config.js") and 'id="closedView"' in read("index.html") and "if(!isOpen) return;" in read("js/rsvp.js") and 'id="findLink"' in read("index.html"))
 
 # 9. size limits (TOOL_STANDARD rule 3), soft at 450 lines
 for rel in TEXT_FILES:

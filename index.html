@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20261125a">
+<link rel="stylesheet" href="css/style.css?v=20261127a">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -53,8 +53,12 @@
   <section class="card" id="rsvpCard">
     <div id="setupBanner" class="banner warn">Registration opens soon. The form is not yet connected, so nothing can be saved right now.</div>
     <div id="formView">
-      <h2>Confirm your attendance</h2>
-      <p class="lead">Fill in your details and we'll email you a QR code. Show it at the registration table on the night.</p>
+      <div id="closedView" style="display:none">
+        <h2>Registration is now closed</h2>
+        <p class="lead">Thank you to everyone who confirmed. If you already registered, you're all set: bring your QR code to the registration table on December 11.</p>
+      </div>
+      <h2 id="formTitle">Confirm your attendance</h2>
+      <p class="lead" id="formLead">Fill in your details and we'll email you a QR code. Show it at the registration table on the night.</p>
       <form id="rsvpForm" novalidate>
         <div class="row two">
           <div class="field">
@@ -155,7 +159,7 @@
   <a href="admin.html">Committee sign-in</a> &middot; Registration system by Obra Mismo
 </footer>
 
-<script src="js/config.js?v=20261125a"></script>
-<script src="js/rsvp.js?v=20261125a"></script>
+<script src="js/config.js?v=20261127a"></script>
+<script src="js/rsvp.js?v=20261127a"></script>
 </body>
 </html>

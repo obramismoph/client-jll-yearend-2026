@@ -36,6 +36,13 @@
     $('submitBtn').disabled = true;
   }
 
+  /* ---------- registration closed ---------- */
+  const isOpen = C.REGISTRATION_OPEN !== false;
+  if(!isOpen){
+    ['formTitle','formLead','rsvpForm','againBtn'].forEach(id => { $(id).style.display = 'none'; });
+    $('closedView').style.display = 'block';
+  }
+
   /* ---------- helpers ---------- */
   function show(view){
     ['formView','findView','successView'].forEach(v => { $(v).style.display = v === view ? 'block' : 'none'; });
@@ -104,6 +111,7 @@
   $('rsvpForm').addEventListener('submit', async function(e){
     e.preventDefault();
     banner('formBanner', '');
+    if(!isOpen) return;
     const lastName = titleCase($('lastName').value);
     const firstName = titleCase($('firstName').value);
     const employeeNo = $('employeeNo').value.trim().replace(/\s+/g, ' ');

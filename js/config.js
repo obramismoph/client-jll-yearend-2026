@@ -15,6 +15,10 @@ window.JLL = {
   // Where the site lives (used in the confirmation email).
   SITE_URL: 'https://www.obramismoph.com/jll_emm2026',
 
+  // false = the form is replaced by the "Registration is now closed" notice.
+  // The database refuses new RSVPs too (migration 0009, rsvp_is_open).
+  REGISTRATION_OPEN: false,
+
   EVENT: {
     name: 'ONE JLL Year-End Party 2026',
     date_text: 'Friday, December 11, 2026',

@@ -115,6 +115,13 @@ Every guest row has an Edit button (any signed-in committee member): last and fi
 business line and contact number can be corrected. The email cannot be changed. It uses the existing
 committee update policy, so no migration was needed (2026-11-25).
 
+## Registration closed (2026-11-27)
+
+Closed at the committee's request. The RSVP page shows "Registration is now closed" with "Find my QR
+code" still working; the database refuses new online RSVPs (migration 0009). Dashboard, check-in and
+walk-ins are unchanged. To reopen: set `rsvp_is_open` to `select true` (SQL in 0009) and
+`REGISTRATION_OPEN: true` in `js/config.js`, then bump the `?v=` stamp.
+
 ## Employee number
 
 Optional field under the name row on the RSVP form (2026-11-11, migration `0006_employee_number.sql`,
